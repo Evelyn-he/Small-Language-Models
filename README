@@ -1,1 +1,2 @@
 Download ollama: https://ollama.com/download
+Download phi in powershell: ollama run phi3:3.8b
