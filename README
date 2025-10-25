@@ -1,3 +1,5 @@
 Download ollama: https://ollama.com/download
 Download phi in powershell: ollama run phi3:3.8b
 To run cli.py, you need to first launch ollama in the background by doing: ollama list
+
+To run data augmentation script: python query_augmentation.py
