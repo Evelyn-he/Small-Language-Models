@@ -5,18 +5,11 @@ import torch
 model_path = "/project/def-khisti/navel/models/gpt-oss-120b/original"
 
 print("Loading model...")
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForCausalLM.from_pretrained(
-    model_path,
-    torch_dtype=torch.float16,
-    device_map="auto"
-)
+tokenizer = AutoTokenizer.from_pretrained(model_path, local_files_only=True)
+model = AutoModelForCausalLM.from_pretrained(model_path, local_files_only=True)
+print("Model loaded successfully!")
 
-prompt = "Explain why the sky appears blue during the day."
-inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-
-print("Generating response...")
-outputs = model.generate(**inputs, max_new_tokens=100)
-
-print("Response:")
+prompt = "What are some ecommerce companies?"
+inputs = tokenizer(prompt, return_tensors="pt")
+outputs = model.generate(**inputs, max_new_tokens=20)
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
