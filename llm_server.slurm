@@ -1,14 +1,17 @@
 #!/bin/bash
 #SBATCH --job-name=gptoss_api
-#SBATCH --account=def-yourprof          # your project allocation
-#SBATCH --nodes=2                        # number of nodes
-#SBATCH --gres=gpu:4                     # 4 GPUs per node
+#SBATCH --account=def-khisti
+#SBATCH --partition=gpu                # 👈 Add this line
+#SBATCH --nodes=1
+#SBATCH --gres=gpu:4                   # 👈 Will now be recognized
 #SBATCH --cpus-per-task=16
-#SBATCH --mem=512G
-#SBATCH --time=72:00:00
+#SBATCH --mem=256G
+#SBATCH --time=24:00:00
+#SBATCH --output=llm_server.out
+#SBATCH --error=llm_server.err
 
 module load python/3.11
-source venv/bin/activate
+source ~/projects/def-khisti/Project2025206/Small-Language-Models/venv/bin/activate
 
-cd ~/Project2025206/Small-Language-Models
+cd ~/projects/def-khisti/Project2025206/Small-Language-Models
 srun python llm_server.py
