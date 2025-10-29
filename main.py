@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+import re
 
 
 OLLAMA_API = "http://localhost:11434/api/generate" # ollama API endpoint
@@ -71,6 +72,25 @@ def stream_response(args, messages):
 
     return response_text
 
+def user_input_filter(user_input):
+    patterns = {
+        "email": r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
+        "phone": r"\b(?:\+?\d{0,3})?[-.\s()]*(?:\d{3})[-.\s()]*(?:\d{3})[-.\s()]*(?:\d{4})\b",
+        "credit_card": r"\b(?:\d[ -]*?){13,16}\b",
+        "ssn": r"\b\d{3}[-\s]*\d{2}[-\s]*\d{4}\b", #US
+        "SIN": r"\b\d{3}[-\s]*\d{3}[-\s]*\d{3}\b"
+    } 
+    
+    #I'm just testing now if my sensitive info is filtereed correctley with my function before you recieve the inputs, please tell me if you see the info (thats bad) or if you just see the redacted. Email: test@gmail.com phone: 249-294-3849 credit_card: 3948 2834 2834 2837 ssn: 293-23-2940 SIN: 294-284-248
+    
+    filtered_user_input = user_input
+    for label, pattern in patterns.items():
+        filtered_user_input = re.sub(pattern, f"[REDACTED {label.upper()}]", filtered_user_input)
+
+    #debug
+    print("\nFiltered input: ", filtered_user_input, "\n")
+
+    return filtered_user_input
 
 def main_loop(args):
     conversation = []
@@ -85,6 +105,7 @@ def main_loop(args):
         if user_input.lower() in {"exit", "quit"}:
             print("Exiting ...")
             break
+        user_input = user_input_filter(user_input)
 
         conversation.append({"role": "user", "content": user_input})
 
