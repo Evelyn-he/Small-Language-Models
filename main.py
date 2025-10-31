@@ -2,6 +2,7 @@ import requests
 import json
 import time
 
+from query_augmentation import get_user_context
 
 OLLAMA_API = "http://localhost:11434/api/generate" # ollama API endpoint
 MODEL = "phi3:3.8b"
@@ -73,6 +74,14 @@ def stream_response(args, messages):
 
 
 def main_loop(args):
+    try:
+        user_id = int(input("Enter user ID: ").strip())
+    except ValueError:
+        print("Invalid user ID. Please enter a number.")
+        return
+    redact = True
+    user_context = get_user_context(user_id, redact)
+
     conversation = []
     warmup_model()
 
@@ -86,7 +95,7 @@ def main_loop(args):
             print("Exiting ...")
             break
 
-        conversation.append({"role": "user", "content": user_input})
+        conversation.append({"role": "user", "content": f"answer question as a customer agent based on the relavant user context (do not provide unnecessary details): {user_input} (User context: {user_context})\n"})
 
         print("AI: ", end="", flush=True)
         reply = stream_response(args, conversation)
