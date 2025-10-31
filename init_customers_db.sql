@@ -12,7 +12,7 @@ CREATE TABLE orders (
     item_name TEXT,
     price REAL,
     order_date TEXT,
-    status TEXT,
+    delivery_status TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
@@ -23,7 +23,7 @@ INSERT INTO users (id, name, email, address) VALUES
 INSERT INTO users (id, name, email, address) VALUES
 (3, 'Vivian', 'vivian@gmail.com', 'Vivian Address');
 
-INSERT INTO orders (id, user_id, item_name, price, order_date, status) VALUES
+INSERT INTO orders (id, user_id, item_name, price, order_date, delivery_status) VALUES
 (1, 1, 'Hand Soap', 5.99, '2025-03-25', 'delivered'),
 (2, 1, 'Green Suitcase', 89.99, '2025-08-06', 'delivered'),
 (3, 1, 'Brita Filter', 45.5, '2025-09-20', 'delivered'),

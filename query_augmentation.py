@@ -20,10 +20,10 @@ def get_user_with_orders(user_id, redact=True):
     user_id, user_name, email, address = user
     
     cur.execute("""
-        SELECT item_name, price, order_date, status
+        SELECT item_name, price, order_date, delivery_status
         FROM orders WHERE user_id=?
     """, (user_id,))
-    orders = [{"item": i, "price": p, "date": d, "status": s} for i, p, d, s in cur.fetchall()]
+    orders = [{"item": i, "price": p, "date": d, "delivery_status": s} for i, p, d, s in cur.fetchall()]
 
     conn.close()
 
@@ -41,14 +41,18 @@ def get_user_with_orders(user_id, redact=True):
         "orders": orders
     }
 
-def augment_query(user_id, query, redact=True):
-    """Build augmented query string including user context."""
+def get_user_context(user_id, redact):
     user_data = get_user_with_orders(user_id, redact)
     if not user_data:
-        return f"User ID {user_id} not found.\n"
+        raise RuntimeError(f"User ID {user_id} not found.\n")
 
     context_json = json.dumps(user_data, ensure_ascii=False)
-    return f"{query} (User context: {context_json})\n"
+    return context_json
+
+def augment_query(user_id, query, redact=True):
+    """Build augmented query string including user context."""
+    user_context = get_user_context(user_id, redact)
+    return f"{query} (User context: {user_context})\n"
 
 def main():
     """Main function to take input and print augmented query."""
@@ -64,9 +68,9 @@ def main():
         return
 
     redact = False
-    augmented = augment_query(user_id, query, redact)
+    augmented_query = augment_query(user_id, query, redact)
     print("\n--- Augmented Query ---\n")
-    print(augmented)
+    print(augmented_query)
 
 if __name__ == "__main__":
     main()
