@@ -1,18 +1,14 @@
 from openai import OpenAI
-import time
 
-client = OpenAI()
+def llm_response(args, conversation):
 
-start_time = time.time()
-print("Hello")
 
-response = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[
-        {"role": "system", "content": "What is 3 + 3?"}
-    ]
-)
+    client = OpenAI()
 
-print(response.choices[0].message.content)
-end_time = time.time()
-print(end_time - start_time)
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=conversation
+    )
+
+    print("LLM: ", response.choices[0].message.content)
+    return response.choices[0].message.content

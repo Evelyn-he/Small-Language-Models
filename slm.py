@@ -1,0 +1,79 @@
+import requests
+import ollama
+import time
+import json
+
+from confidence import evaluate_confidence
+
+OLLAMA_API = "http://localhost:11434/api/generate" # ollama API endpoint
+MODEL = "phi3:3.8b"
+CHAR_DELAY = 0.015  # delay between characters for printing out AI response
+
+def warmup_model():
+    """Dummy request to load the model into memory"""
+    payload = {
+        "model": MODEL,
+        "prompt": "Hi",
+        "stream": False,
+        "options": {"num_predict": 1}
+    }
+    requests.post(OLLAMA_API, json=payload)
+
+def stream_response(args, messages, log_probs_eval=None):
+    prompt = ""
+    for msg in messages:
+        role = "You" if msg["role"] == "user" else "AI"
+        prompt += f"{role}: {msg['content']}\n"
+    
+    prompt += "AI: "
+
+    payload = {
+        "model": MODEL,
+        "prompt": prompt,
+        "stream": True, # This allows us to access AI's response before it's done
+        "options": {
+            "num_predict": 100  # Maximum number of tokens for the AI response length
+        }
+    }
+
+    response_text = ""
+    start_time = time.time()
+
+    # This prints out the AI's response as it's responding
+    # (as opposed to printing once the AI is done responding).
+    with requests.post(OLLAMA_API, json=payload, stream=True) as r:
+        for line in r.iter_lines():
+            if not line:
+                continue
+            
+            try:
+                data = json.loads(line.decode("utf-8"))
+                
+                if "response" in data:
+                    chunk = data["response"]
+                    
+                    for char in chunk:
+                        print(char, end="", flush=True)
+                        time.sleep(CHAR_DELAY)
+                    
+                    response_text += chunk
+                
+                if data.get("done", False):
+                    break
+                    
+            except json.JSONDecodeError:
+                continue
+
+
+    print()
+
+    confidence = evaluate_confidence(prompt, response_text, log_probs_eval)
+    if not confidence:
+        print("SLM is not confident")
+
+    total_response_time = time.time()
+
+    if args.verbose:
+        print(f"    [DEBUG] SLM Response Time: {total_response_time - start_time} seconds")
+
+    return response_text, confidence
