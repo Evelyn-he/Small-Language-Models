@@ -2,10 +2,7 @@ import sqlite3
 import json
 from pathlib import Path
 
-CUSTOMER_DATABASE_PATH = Path(__file__).parent / "customers.db"
-
-conn = sqlite3.connect("customers.db")
-cur = conn.cursor()
+CUSTOMER_DATABASE_PATH = Path(__file__).parent / "data" / "customers.db"
 
 def get_user_with_orders(user_id, redact=True):
     """Fetch user info and nested orders from the database."""

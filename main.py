@@ -3,7 +3,7 @@ from slm import warmup_model, stream_response
 from llm import llm_response
 from confidence import load_tokenizer
 
-from query_augmentation import get_user_context
+from data_retriever import get_user_context, write_to_output_txt
 
 OLLAMA_API = "http://localhost:11434/api/generate" # ollama API endpoint
 MODEL = "phi3:3.8b"
@@ -45,6 +45,7 @@ def main_loop(args):
         return
     redact = True
     user_context = get_user_context(user_id, redact)
+    write_to_output_txt(user_context)
 
     conversation = []
     filtered_convo = []
