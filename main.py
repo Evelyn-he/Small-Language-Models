@@ -2,6 +2,8 @@ import re
 from slm import warmup_model, stream_response
 from llm import llm_response
 from confidence import load_tokenizer
+# from data_retriever import get_user_context, write_to_output_txt
+from query_augmentation import get_user_context
 
 def user_input_filter(user_input):
     patterns = {
@@ -30,6 +32,14 @@ def main_loop(args):
     warmup_model()
     log_probs_eval = load_tokenizer()
 
+    try:
+        user_id = int(input("Enter user ID: ").strip())
+    except ValueError:
+        print("Invalid user ID. Please enter a number.")
+        return
+    redact = True
+    user_context = get_user_context(user_id, redact)
+    # write_to_output_txt(user_context)
 
     print("Chat with Ollama (type 'exit' or 'quit' to end)")
     print("=" * 60)
@@ -42,7 +52,7 @@ def main_loop(args):
 
         filtered_input = user_input_filter(user_input)
 
-        conversation.append({"role": "user", "content": user_input})
+        conversation.append({"role": "user", "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). User input: {user_input} (User context: {user_context})\n"})
         filtered_convo.append({"role": "user", "content": filtered_input})
 
         print("AI: ", end="", flush=True)
