@@ -25,20 +25,46 @@ def user_input_filter(user_input):
 
     return filtered_user_input
 
-
-def main_loop(args):
-    conversation = []
-    filtered_convo = []
+def initialize():
     warmup_model()
     log_probs_eval = load_tokenizer()
+    return log_probs_eval
+
+def create_user_session(user_id, redact=True):
+    user_context = get_user_context(user_id, redact)
+    conversation = []
+    filtered_convo = []
+    return user_context, conversation, filtered_convo
+
+def process_message(user_id, user_input, args, conversation, filtered_convo, user_context, log_probs_eval):
+    filtered_input = user_input_filter(user_input)
+
+    conversation.append({"role": "user", "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). User input: {user_input} (User context: {user_context})\n"})
+    filtered_convo.append({"role": "user", "content": filtered_input})
+
+    print("AI: ", end="", flush=True)
+    reply, confidence = stream_response(args, conversation, log_probs_eval)
+
+    if not confidence:
+        print(f"Filtered input: {filtered_input}") #can comment this out later
+        reply = llm_response(args, filtered_convo)
+
+    conversation.append({"role": "assistant", "content": reply})
+    filtered_convo.append({"role": "assistant", "content": reply})
+
+    return reply
+
+
+def main_loop(args):
+    log_probs_eval = initialize()
 
     try:
         user_id = int(input("Enter user ID: ").strip())
     except ValueError:
         print("Invalid user ID. Please enter a number.")
         return
-    redact = True
-    user_context = get_user_context(user_id, redact)
+    
+    user_context, conversation, filtered_convo = create_user_session(user_id)
     # write_to_output_txt(user_context)
 
     print("Chat with Ollama (type 'exit' or 'quit' to end)")
@@ -50,20 +76,7 @@ def main_loop(args):
             print("Exiting ...")
             break
 
-        filtered_input = user_input_filter(user_input)
-
-        conversation.append({"role": "user", "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). User input: {user_input} (User context: {user_context})\n"})
-        filtered_convo.append({"role": "user", "content": filtered_input})
-
-        print("AI: ", end="", flush=True)
-        reply, confidence = stream_response(args, conversation, log_probs_eval)
-
-        if not confidence:
-            print(f"Filtered input: {filtered_input}") #can comment this out later
-            reply = llm_response(args, filtered_convo)
-
-        conversation.append({"role": "assistant", "content": reply})
-        filtered_convo.append({"role": "assistant", "content": reply})
+        process_message(user_id, user_input, args, conversation, filtered_convo, user_context, log_probs_eval)
 
 
 if __name__ == "__main__":
