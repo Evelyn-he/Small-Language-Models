@@ -2,8 +2,9 @@ import re
 from slm import warmup_model, stream_response
 from llm import llm_response
 from confidence import load_tokenizer
-# from data_retriever import get_user_context, write_to_output_txt
-from query_augmentation import get_user_context
+from data_retriever import get_user_context, write_to_output_txt
+# from query_augmentation import get_user_context
+from embeddings import embed_text, get_order_embeddings, get_relevant_orders
 
 def user_input_filter(user_input):
     patterns = {
