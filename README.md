@@ -18,3 +18,19 @@ To make API calls to ChatGPT, do the following:
 1. Make sure correct requirements are installed through `pip install -r requirements.txt`
 2. Launch ollama: `ollama list`.
 3. In the root folder, run `python cli.py` to spin up the program.
+
+## To run the server-client api on a single laptop
+
+1. On one terminal, run `python server.py [-p <port>]`, you should see `[SERVER] Listening on <ip>:<port>` message from the output. 
+    (`-p` is an optional flag. The port is set to 5001 by default)
+2. On another terminal, run `python client.py`, and enter the ip and port you got previously.
+
+## To run the server-client api on different laptops
+
+1. On the laptop that runs the server:
+    1. install ngrok
+    2. run `python server.py [-p <port>]`
+    3. on a new terminal, run `ngrok tcp <port>`. You will see an address in the format of `<digit>.tcp.ngrok.io:<new_port>`
+2. On the laptop(s) that run the client(s):
+    1. run `python client.py`
+    2. Enter `<digit>.tcp.ngrok.io` for ip and enter `<new_port>` for port

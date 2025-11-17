@@ -8,7 +8,7 @@ from main import (
 )
 
 HOST = "0.0.0.0"
-PORT = 5001
+# PORT = 5001
 clients = []
 clients_lock = threading.Lock()
 running = True
@@ -105,9 +105,9 @@ def start_server(args):
     global running
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind((HOST, PORT))
+    server_socket.bind((HOST, args.port))
     server_socket.listen()
-    print(f"[SERVER] Listening on {get_local_ip()}:{PORT}")
+    print(f"[SERVER] Listening on {get_local_ip()}:{args.port}")
     print("Type 'exit' to shut down the server.\n")
 
     threading.Thread(target=server_console, daemon=True).start()
@@ -131,6 +131,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--verbose", "-v", action="store_true")
+    parser.add_argument("--port", "-p", default=5001, type=int)
     args = parser.parse_args()
 
     start_server(args)
