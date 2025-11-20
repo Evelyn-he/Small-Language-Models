@@ -35,7 +35,9 @@ def get_verbalized_confidence(answer):
         confident = False
     if "as an artificial intelligence" in answer:
         confident = False
-    
+    if "unsure" in answer:
+        confident= False
+
     return confident
 
 def get_log_probs(prompt, answer, log_probs_eval):
@@ -75,9 +77,9 @@ def evaluate_confidence(prompt, answer, log_probs_eval):
     
     confident = True
 
-    if not get_log_probs(prompt, answer, log_probs_eval):
-        print("SLM is not confident on account of log probabilities")
-        confident = False
+    # if not get_log_probs(prompt, answer, log_probs_eval):
+    #     print("SLM is not confident on account of log probabilities")
+    #     confident = False
 
     if not get_verbalized_confidence(answer):
         print("SLM is not confident on account of language used")

@@ -33,7 +33,8 @@ def select_relevant_fields(query: str, sample_order: Dict, threshold=0.1):
         "qty": ["Quantity"],
         "quantity": ["Quantity"],
         "number": ["Quantity"],
-        "many": ["Quantity"]
+        "many": ["Quantity"],
+        "latest":["InvoiceDate"]
     }
 
     query_lower = query.lower()

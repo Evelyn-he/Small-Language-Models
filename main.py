@@ -1,4 +1,5 @@
 import re
+import time
 from slm import warmup_model, stream_response
 from llm import llm_response
 from confidence import load_tokenizer
@@ -46,22 +47,34 @@ def create_user_session(user_id, redact=True):
     return user_context, conversation, filtered_convo, vector_store
 
 def process_message(user_id, user_input, args, conversation, filtered_convo, user_context, log_probs_eval, vector_store):
+
+    start_time = time.time()
     top_orders =  vector_store.search_and_mask(user_input, top_k=5)
+    end_time = time.time()
+
+    if (args.verbose):
+        print("\tData Augmentation Time: ", end_time - start_time)
 
     print(top_orders)
     filtered_input = user_input_filter(user_input)
     filtered_context = user_input_filter(top_orders)
 
-    #conversation.append({"role": "user", "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). User input: {user_input} (User context: {user_context})\n"})
-    conversation.append({"role": "user", "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). User input: {user_input} (User context: {top_orders})\n"})
+    conversation.append({"role": "user", "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). If you're unsure, say you're unsure. User input: {user_input} (User context: {top_orders})\n"})
     filtered_convo.append({"role": "user", "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). User input: {filtered_input} (User context: {filtered_context})\n"})
 
     print("AI: ", end="", flush=True)
+
     reply, confidence = stream_response(args, conversation, log_probs_eval)
 
     if not confidence:
         print(f"Filtered input: {filtered_input}") #can comment this out later
+
+        start_time = time.time()
         reply = llm_response(args, filtered_convo)
+        end_time = time.time()
+
+        if(args.verbose):
+            print("\tLLM response time: ", end_time - start_time)
 
     conversation.append({"role": "assistant", "content": reply})
     filtered_convo.append({"role": "assistant", "content": reply})

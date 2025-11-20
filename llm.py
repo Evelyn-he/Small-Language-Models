@@ -1,4 +1,8 @@
 from openai import OpenAI
+from dotenv import load_dotenv
+
+import os
+load_dotenv(".env", override=True)
 
 def llm_response(args, conversation):
 
@@ -6,7 +10,7 @@ def llm_response(args, conversation):
     client = OpenAI()
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4.1",
         messages=conversation
     )
 
