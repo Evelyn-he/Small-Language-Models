@@ -7,7 +7,7 @@ from confidence import evaluate_confidence
 
 OLLAMA_API = "http://localhost:11434/api/generate" # ollama API endpoint
 MODEL = "phi3:3.8b"
-CHAR_DELAY = 0.015  # delay between characters for printing out AI response
+CHAR_DELAY = 0  # delay between characters for printing out AI response
 
 def warmup_model():
     """Dummy request to load the model into memory"""
@@ -20,6 +20,8 @@ def warmup_model():
     requests.post(OLLAMA_API, json=payload)
 
 def stream_response(args, messages, log_probs_eval=None):
+
+    start_time = time.time()
     prompt = ""
     for msg in messages:
         role = "You" if msg["role"] == "user" else "AI"
@@ -67,13 +69,19 @@ def stream_response(args, messages, log_probs_eval=None):
 
     print()
 
+    end_time = time.time()
+
+    if(args.verbose):
+        print("\tSLM response time: ", end_time - start_time)
+
+
+    start_time = time.time()
     confidence = evaluate_confidence(prompt, response_text, log_probs_eval)
     if not confidence:
-        print("SLM is not confident")
+        print("\tSLM is not confident")
+    end_time = time.time()
 
-    total_response_time = time.time()
-
-    if args.verbose:
-        print(f"    [DEBUG] SLM Response Time: {total_response_time - start_time} seconds")
+    if(args.verbose):
+        print("\tConfidence evaluation time: ", end_time - start_time)
 
     return response_text, confidence
