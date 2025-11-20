@@ -49,32 +49,37 @@ def create_user_session(user_id, redact=True):
 def process_message(user_id, user_input, args, conversation, filtered_convo, user_context, log_probs_eval, vector_store):
 
     start_time = time.time()
-    top_orders =  vector_store.search_and_mask(user_input, top_k=5)
+    top_orders =  vector_store.search_and_mask(user_input, top_k=20)
     end_time = time.time()
 
     if (args.verbose):
-        print("\tData Augmentation Time: ", end_time - start_time)
+        print("\t[DEBUG] Data Augmentation Time: ", end_time - start_time)
 
-    print(top_orders)
+
+    if (args.verbose):
+        print(f"\t[DEBUG] Top Orders:{top_orders}")
+
     filtered_input = user_input_filter(user_input)
     filtered_context = user_input_filter(top_orders)
 
-    conversation.append({"role": "user", "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). If you're unsure, say you're unsure. User input: {user_input} (User context: {top_orders})\n"})
-    filtered_convo.append({"role": "user", "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). User input: {filtered_input} (User context: {filtered_context})\n"})
+    conversation.append({"role": "user", "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). If you're unsure, say you're unsure. Negative quantities are returns. User input: {user_input} (User context: {top_orders})\n"})
+    filtered_convo.append({"role": "user", "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). Negative quantities are returns. User input: {filtered_input} (User context: {filtered_context})\n"})
 
     print("AI: ", end="", flush=True)
 
     reply, confidence = stream_response(args, conversation, log_probs_eval)
 
     if not confidence:
-        print(f"Filtered input: {filtered_input}") #can comment this out later
+
+        if (args.verbose):
+            print(f"\t[DEBUG] Filtered input: {filtered_input}")
 
         start_time = time.time()
         reply = llm_response(args, filtered_convo)
         end_time = time.time()
 
         if(args.verbose):
-            print("\tLLM response time: ", end_time - start_time)
+            print("\t[DEBUG] LLM response time: ", end_time - start_time)
 
     conversation.append({"role": "assistant", "content": reply})
     filtered_convo.append({"role": "assistant", "content": reply})
@@ -92,7 +97,7 @@ def main_loop(args):
         return
     
     user_context, conversation, filtered_convo, vector_store = create_user_session(user_id)
-    #write_to_output_txt(user_context)
+    # write_to_output_txt(user_context)
 
     print("Chat with Ollama (type 'exit' or 'quit' to end)")
     print("=" * 60)
@@ -107,6 +112,9 @@ def main_loop(args):
             conversation, filtered_convo, user_context, 
             log_probs_eval, vector_store)
 
+        print() 
+
+        print("=" * 60)
 
 if __name__ == "__main__":
     main_loop()
