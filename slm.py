@@ -34,7 +34,9 @@ def stream_response(args, messages, log_probs_eval=None):
         "prompt": prompt,
         "stream": True, # This allows us to access AI's response before it's done
         "options": {
-            "num_predict": 100  # Maximum number of tokens for the AI response length
+            "num_predict": 100,  # Maximum number of tokens for the AI response length
+            "stop": ["\n\n", "You:"],
+            "top_k": 1
         }
     }
 
@@ -72,16 +74,16 @@ def stream_response(args, messages, log_probs_eval=None):
     end_time = time.time()
 
     if(args.verbose):
-        print("\tSLM response time: ", end_time - start_time)
+        print("\t[DEBUG] SLM response time: ", end_time - start_time)
 
 
     start_time = time.time()
     confidence = evaluate_confidence(prompt, response_text, log_probs_eval)
     if not confidence:
-        print("\tSLM is not confident")
+        print("*** SLM is not confident ***")
     end_time = time.time()
 
     if(args.verbose):
-        print("\tConfidence evaluation time: ", end_time - start_time)
+        print("\t[DEBUG] Confidence evaluation time: ", end_time - start_time)
 
     return response_text, confidence

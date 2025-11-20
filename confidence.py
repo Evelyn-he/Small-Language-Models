@@ -23,20 +23,13 @@ def get_verbalized_confidence(answer):
     answer = answer.lower()
     answer = re.sub(r'[^a-zA-Z0-9\s]', '', answer)
 
+    verbalized_nonconfidence = ["sorry", "as a", "restricted", "microsoft", "unsure"]
 
     confident = True
-    if "sorry" in answer:
-        confident = False
-    if "restricted" in answer:
-        confident = False
-    if "microsoft" in answer:
-        confident = False
-    if "as an ai" in answer:
-        confident = False
-    if "as an artificial intelligence" in answer:
-        confident = False
-    if "unsure" in answer:
-        confident= False
+    for w in verbalized_nonconfidence:
+        if w in answer:
+            confident = False
+            break
 
     return confident
 
@@ -82,7 +75,7 @@ def evaluate_confidence(prompt, answer, log_probs_eval):
     #     confident = False
 
     if not get_verbalized_confidence(answer):
-        print("SLM is not confident on account of language used")
+        #print("SLM is not confident on account of language used")
         confident = False
     
     return confident
