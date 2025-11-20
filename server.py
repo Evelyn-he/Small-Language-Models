@@ -46,7 +46,7 @@ def handle_client(conn, addr, args):
             conn.close()
             return
 
-        user_context, conversation, filtered_convo = create_user_session(user_id, redact=True)
+        user_context, conversation, filtered_convo, vector_store = create_user_session(user_id, redact=True)
 
         conn.send(b"Login successful. You can start chatting now.\n\nYou: ")
 
@@ -60,7 +60,7 @@ def handle_client(conn, addr, args):
                 conn.send(b"SERVER_SHUTDOWN")
                 break
 
-            reply = process_message(user_id, user_input, args, conversation, filtered_convo, user_context, log_probs_eval)
+            reply = process_message(user_id, user_input, args, conversation, filtered_convo, user_context, log_probs_eval, vector_store)
             # prompt, reply = generate_slm_result(user_id, user_input, args, conversation, filtered_convo, user_context)
 
             # perform_post_slm_computation(conversation, filtered_convo, log_probs_eval, prompt, reply)
