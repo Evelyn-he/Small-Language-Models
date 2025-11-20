@@ -34,7 +34,10 @@ def select_relevant_fields(query: str, sample_order: Dict, threshold=0.1):
         "quantity": ["Quantity"],
         "number": ["Quantity"],
         "many": ["Quantity"],
-        "latest":["PurchaseDate"]
+        "latest":["PurchaseDate"],
+        "last":["PurchaseDate"],
+        "tracking":["TrackingNumber"],
+        "where":["Country"]
     }
 
     query_lower = query.lower()

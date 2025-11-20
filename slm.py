@@ -34,7 +34,8 @@ def stream_response(args, messages, log_probs_eval=None):
         "prompt": prompt,
         "stream": True, # This allows us to access AI's response before it's done
         "options": {
-            "num_predict": 100  # Maximum number of tokens for the AI response length
+            "num_predict": 100,  # Maximum number of tokens for the AI response length
+            "stop": ["\n\n", "You:"]
         }
     }
 
