@@ -34,7 +34,7 @@ def select_relevant_fields(query: str, sample_order: Dict, threshold=0.1):
         "quantity": ["Quantity"],
         "number": ["Quantity"],
         "many": ["Quantity"],
-        "latest":["InvoiceDate"]
+        "latest":["PurchaseDate"]
     }
 
     query_lower = query.lower()
@@ -45,9 +45,9 @@ def select_relevant_fields(query: str, sample_order: Dict, threshold=0.1):
                 if f in sample_order and f not in fields:
                     fields.append(f)
 
-    # Always keep Description for semantic product matching
-    if "Description" not in fields:
-        fields.append("Description")
+    # Always keep PurchasedItemDescription for semantic product matching
+    if "PurchasedItemDescription" not in fields:
+        fields.append("PurchasedItemDescription")
 
     return fields
 

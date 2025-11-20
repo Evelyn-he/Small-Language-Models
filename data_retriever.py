@@ -14,7 +14,7 @@ def get_user_with_orders(user_id, redact=True):
         SELECT InvoiceNo, StockCode, Description, Quantity, InvoiceDate, UnitPrice, Country
         FROM orders WHERE CustomerID=?
     """, (user_id,))
-    orders = [{"InvoiceNo": no, "StockCode": s, "Description": d, "Quantity": q, "InvoiceDate": date, "UnitPrice": u, "Country": c} for no, s, d, q, date, u, c in cur.fetchall()]
+    orders = [{"InvoiceNo": no, "StockCode": s, "PurchasedItemDescription": d, "Quantity": q, "PurchaseDate": date, "UnitPrice": u, "Country": c} for no, s, d, q, date, u, c in cur.fetchall()]
 
     conn.close()
 
