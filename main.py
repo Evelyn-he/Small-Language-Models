@@ -8,12 +8,22 @@ from data_retriever import get_user_context, write_to_output_txt
 from embeddings import OrderVectorStore, dict_to_text
 
 def user_input_filter(user_input):
+    #REGEX PATTERNS
     patterns = {
         "email": r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
         "phone": r"\b(?:\+?\d{0,3})?[-.\s()]*(?:\d{3})[-.\s()]*(?:\d{3})[-.\s()]*(?:\d{4})\b",
         "credit_card": r"\b(?:\d[ -]*?){13,16}\b",
         "ssn": r"\b\d{3}[-\s]*\d{2}[-\s]*\d{4}\b", #US
-        "SIN": r"\b\d{3}[-\s]*\d{3}[-\s]*\d{3}\b"
+        "SIN": r"\b\d{3}[-\s]*\d{3}[-\s]*\d{3}\b",
+        #be careful with diff credit card formats, Visa, mastercard, american express etc
+        #ZIp codes
+        "zip_code": r"\b\d{5}\b",
+        #Postal codes
+        "postal_code_canada": r"\b[ABCEGHJ-NPRSTVXY][0-9][ABCEGHJ-NPRSTV-Z]\s?[0-9][ABCEGHJ-NPRSTV-Z][0-9]\b",
+        #file paths
+        "file_path": r"^[a-zA-Z]:\\(?:[^\\/:*?\"<>|]+\\)*[^\\/:*?\"<>|]+$",
+        #URLS
+        "URL": r"https?://(?:www\.)?(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,63}(?::\d{1,5})?(?:/[^\s]*)?"
     } 
     
     #I'm just testing now if my sensitive info is filtereed correctley with my function before you recieve the inputs, please tell me if you see the info (thats bad) or if you just see the redacted. Email: test@gmail.com phone: 249-294-3849 credit_card: 3948 2834 2834 2837 ssn: 293-23-2940 SIN: 294-284-248
