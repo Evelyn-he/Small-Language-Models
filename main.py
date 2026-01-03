@@ -40,6 +40,7 @@ def create_user_session(user_id, redact=True):
     user_context = get_user_context(user_id, redact)
     conversation = []
     filtered_convo = []
+    # write_to_output_txt(user_context)
 
     # Create FAISS store for THIS user only
     vector_store = OrderVectorStore(user_context)
