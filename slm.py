@@ -3,7 +3,8 @@ import ollama
 import time
 import json
 
-from confidence import evaluate_confidence
+# from confidence import evaluate_confidence
+from confidence_rouge import evaluate_rouge_confidence
 
 OLLAMA_API = "http://localhost:11434/api/generate" # ollama API endpoint
 MODEL = "phi3:3.8b"
@@ -78,7 +79,18 @@ def stream_response(args, messages, log_probs_eval=None):
 
 
     start_time = time.time()
-    confidence = evaluate_confidence(prompt, response_text, log_probs_eval)
+    
+    # confidence = evaluate_confidence(prompt, response_text, log_probs_eval)
+
+    confidence = evaluate_rouge_confidence(
+        model=MODEL,
+        prompt=prompt,
+        original_response=response_text,
+        num_samples=2,  # generate 2 additional responses for comparison
+        rouge_threshold=0.3,  # confidence threshold (adjustable)
+        verbose=args.verbose
+    )
+    
     if not confidence:
         print("*** SLM is not confident ***")
     end_time = time.time()

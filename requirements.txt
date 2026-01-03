@@ -14,3 +14,4 @@ sentence_transformers==5.1.2
 dotenv==0.9.9
 faiss-cpu==1.13.0
 spacy==3.8.11
+rouge-score
