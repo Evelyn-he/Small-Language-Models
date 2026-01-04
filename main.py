@@ -1,5 +1,6 @@
 import re
 import time
+import spacy
 from slm import warmup_model, stream_response
 from llm import llm_response
 from confidence import load_tokenizer
@@ -16,14 +17,10 @@ def user_input_filter(user_input):
         "ssn": r"\b\d{3}[-\s]*\d{2}[-\s]*\d{4}\b", #US
         "SIN": r"\b\d{3}[-\s]*\d{3}[-\s]*\d{3}\b",
         #be careful with diff credit card formats, Visa, mastercard, american express etc
-        #ZIp codes
-        "zip_code": r"\b\d{5}\b",
         #Postal codes
         "postal_code_canada": r"\b[ABCEGHJ-NPRSTVXY][0-9][ABCEGHJ-NPRSTV-Z]\s?[0-9][ABCEGHJ-NPRSTV-Z][0-9]\b",
-        #file paths
-        "file_path": r"^[a-zA-Z]:\\(?:[^\\/:*?\"<>|]+\\)*[^\\/:*?\"<>|]+$",
         #URLS
-        "URL": r"https?://(?:www\.)?(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,63}(?::\d{1,5})?(?:/[^\s]*)?"
+        "URL": r"(?:https?://)?(?:www\.)?(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,63}(?::\d{1,5})?(?:/[^\s]*)?"
     } 
     
     #I'm just testing now if my sensitive info is filtereed correctley with my function before you recieve the inputs, please tell me if you see the info (thats bad) or if you just see the redacted. Email: test@gmail.com phone: 249-294-3849 credit_card: 3948 2834 2834 2837 ssn: 293-23-2940 SIN: 294-284-248
@@ -40,6 +37,17 @@ def user_input_filter(user_input):
     #print("\nFiltered input: ", filtered_user_input, "\n")
 
     return filtered_user_input
+
+
+def entity_recognition_filter(user_input):
+    #python -m spacy download en_core_web_sm
+    nlp = spacy.load("en_core_web_sm")
+    inputs = nlp(user_input)
+    for ent in inputs.ents:
+        if ent.label_ in {"PERSON", "GPE", "LOC", "ORG"}:
+            user_input = user_input.replace(ent.text,f"[REDACTED {ent.label_}]")
+    #print("\nNLP Spacy filtered input: ", user_input, "\n")
+    return user_input
 
 def initialize():
     warmup_model()
@@ -70,6 +78,8 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, use
         print(f"\t[DEBUG] Top Orders:{top_orders}")
 
     filtered_input = user_input_filter(user_input)
+    filtered_input = entity_recognition_filter(filtered_input)
+    print("\nNLP Spacy filtered input: ", filtered_input, "\n")
     filtered_context = user_input_filter(top_orders)
 
     conversation.append({"role": "user", "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). If you're unsure, say you're unsure. Negative quantities are returns. User input: {user_input} (User context: {top_orders})\n"})
