@@ -1,0 +1,8 @@
+FROM ~/phi3-q8_0.gguf
+
+PARAMETER temperature 0.2
+PARAMETER top_k 1
+PARAMETER top_p 0.9
+PARAMETER num_ctx 4096
+
+SYSTEM You are a helpful assistant. Use the provided context to answer accurately.

@@ -1,0 +1,21 @@
+{
+  "training": [
+    {
+      "question": "Does this laptop support 32GB RAM?",
+      "context": "The Ultrabook Pro 15 comes with Intel i7, 16GB RAM, 512GB SSD, and supports memory upgrade to 32GB.",
+      "answer": "Yes, the Ultrabook Pro 15 supports up to 32GB RAM."
+    },
+    {
+      "question": "What colors does the running shoes model X come in?",
+      "context": "Model X running shoes are available in black, white, red, and blue.",
+      "answer": "Model X is available in black, white, red, and blue."
+    }
+  ],
+  "validation": [
+    {
+      "question": "Is this camera waterproof?",
+      "context": "The AquaCam 2000 is waterproof up to 10 meters and dust resistant.",
+      "answer": "Yes, the AquaCam 2000 is waterproof up to 10 meters."
+    }
+  ]
+}
