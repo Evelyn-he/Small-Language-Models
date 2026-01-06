@@ -1,21 +1,23 @@
 {
-  "training": [
+  "train": [
     {
-      "question": "Does this laptop support 32GB RAM?",
-      "context": "The Ultrabook Pro 15 comes with Intel i7, 16GB RAM, 512GB SSD, and supports memory upgrade to 32GB.",
-      "answer": "Yes, the Ultrabook Pro 15 supports up to 32GB RAM."
-    },
-    {
-      "question": "What colors does the running shoes model X come in?",
-      "context": "Model X running shoes are available in black, white, red, and blue.",
-      "answer": "Model X is available in black, white, red, and blue."
+      "question": "How much does an antique frame cost?",
+      "context": "--- Top Relevant Orders ---\n1. PurchasedItemDescription: WOODEN FRAME ANTIQUE WHITE , UnitPrice: 2.55\n\n--- Aggregated Top Orders ---\n1. description: WOODEN FRAME ANTIQUE WHITE , total_entries: 17, total_quantity: 82, most_recent_purchase: 2/10/2011 14:38, unit_price: 2.55\n\n--- Most Recent Orders ---\n1. PurchasedItemDescription: WOOD 2 DRAWER CABINET WHITE FINISH, UnitPrice: 4.95\n2. PurchasedItemDescription: HAND WARMER RED RETROSPOT, UnitPrice: 1.85\n3. PurchasedItemDescription: WOOD 2 DRAWER CABINET WHITE FINISH, UnitPrice: 4.95\n4. PurchasedItemDescription: SAVE THE PLANET MUG, UnitPrice: 1.06\n5. PurchasedItemDescription: WOODEN FRAME ANTIQUE WHITE , UnitPrice: 2.55",
+      "answer": "A wooden white antique frame costs $2.55."
     }
   ],
   "validation": [
     {
-      "question": "Is this camera waterproof?",
-      "context": "The AquaCam 2000 is waterproof up to 10 meters and dust resistant.",
-      "answer": "Yes, the AquaCam 2000 is waterproof up to 10 meters."
+      "question": "How much did my most recent order cost?",
+      "context": "--- Top Relevant Orders ---\n1. PurchasedItemDescription: IVORY EMBROIDERED QUILT , PurchaseDate: 12/2/2010 14:04, UnitPrice: 35.75\n2. PurchasedItemDescription: IVORY EMBROIDERED QUILT , PurchaseDate: 12/1/2010 10:51, UnitPrice: 35.75\n3. PurchasedItemDescription: IVORY EMBROIDERED QUILT , PurchaseDate: 12/2/2010 14:06, UnitPrice: 35.75\n4. PurchasedItemDescription: IVORY EMBROIDERED QUILT , PurchaseDate: 12/1/2010 11:33, UnitPrice: 35.75\n5. PurchasedItemDescription: WOOD S/3 CABINET ANT WHITE FINISH, PurchaseDate: 12/1/2010 9:02, UnitPrice: 6.95\n6. PurchasedItemDescription: IVORY EMBROIDERED QUILT , PurchaseDate: 12/2/2010 15:26, UnitPrice: 35.75\n7. PurchasedItemDescription: WOOD S/3 CABINET ANT WHITE FINISH, PurchaseDate: 12/2/2010 14:06, UnitPrice: 6.95\n8. PurchasedItemDescription: WOOD S/3 CABINET ANT WHITE FINISH, PurchaseDate: 12/2/2010 14:04, UnitPrice: 6.95\n9. PurchasedItemDescription: EDWARDIAN PARASOL BLACK, PurchaseDate: 12/2/2010 14:06, UnitPrice: 4.95\n10. PurchasedItemDescription: IVORY EMBROIDERED QUILT , PurchaseDate: 12/2/2010 12:25, UnitPrice: 35.75\n11. PurchasedItemDescription: IVORY EMBROIDERED QUILT , PurchaseDate: 12/2/2010 12:23, UnitPrice: 35.75\n12. PurchasedItemDescription: WOOD S/3 CABINET ANT WHITE FINISH, PurchaseDate: 12/1/2010 11:33, UnitPrice: 6.95\n13. PurchasedItemDescription: EDWARDIAN PARASOL BLACK, PurchaseDate: 12/2/2010 14:04, UnitPrice: 4.95\n14. PurchasedItemDescription: WOOD S/3 CABINET ANT WHITE FINISH, PurchaseDate: 12/1/2010 10:51, UnitPrice: 6.95\n15. PurchasedItemDescription: EDWARDIAN PARASOL BLACK, PurchaseDate: 12/1/2010 10:51, UnitPrice: 4.95\n\n--- Aggregated Top Orders ---\n1. description: EDWARDIAN PARASOL BLACK, total_entries: 4, total_quantity: 24, most_recent_purchase: 12/2/2010 15:26, unit_price: 4.95\n2. description: IVORY EMBROIDERED QUILT , total_entries: 8, total_quantity: 17, most_recent_purchase: 12/2/2010 15:26, unit_price: 35.75\n3. description: WOOD S/3 CABINET ANT WHITE FINISH, total_entries: 14, total_quantity: 50, most_recent_purchase: 12/2/2010 15:26, unit_price: 6.95\n\n--- Most Recent Orders ---\n1. PurchasedItemDescription: WOOD 2 DRAWER CABINET WHITE FINISH, PurchaseDate: 2/10/2011 14:38, UnitPrice: 4.95\n2. PurchasedItemDescription: HAND WARMER RED RETROSPOT, PurchaseDate: 2/10/2011 14:38, UnitPrice: 1.85\n3. PurchasedItemDescription: WOOD 2 DRAWER CABINET WHITE FINISH, PurchaseDate: 2/10/2011 14:38, UnitPrice: 4.95\n4. PurchasedItemDescription: SAVE THE PLANET MUG, PurchaseDate: 2/10/2011 14:38, UnitPrice: 1.06\n5. PurchasedItemDescription: WOODEN FRAME ANTIQUE WHITE , PurchaseDate: 2/10/2011 14:38, UnitPrice: 2.55",
+      "answer": "Your most recent order was a wood drawer cabinet and cost $4.95."
+    }
+  ],
+  "test": [
+    {
+      "question": "How many edwardian parasols have I bought in total?",
+      "context": "--- Top Relevant Orders ---\n1. PurchasedItemDescription: EDWARDIAN PARASOL BLACK, Quantity: 6\n2. PurchasedItemDescription: EDWARDIAN PARASOL RED, Quantity: 6\n3. PurchasedItemDescription: RED WOOLLY HOTTIE WHITE HEART., Quantity: 8\n4. PurchasedItemDescription: RED WOOLLY HOTTIE WHITE HEART., Quantity: 6\n\n--- Aggregated Top Orders ---\n1. description: EDWARDIAN PARASOL BLACK, total_entries: 4, total_quantity: 24, most_recent_purchase: 12/2/2010 15:26, unit_price: 4.95\n2. description: EDWARDIAN PARASOL RED, total_entries: 7, total_quantity: 42, most_recent_purchase: 12/2/2010 15:26, unit_price: 4.95\n3. description: RED WOOLLY HOTTIE WHITE HEART., total_entries: 17, total_quantity: 104, most_recent_purchase: 12/2/2010 15:26, unit_price: 3.39\n\n--- Most Recent Orders ---\n1. PurchasedItemDescription: WOOD 2 DRAWER CABINET WHITE FINISH, Quantity: -1\n2. PurchasedItemDescription: HAND WARMER RED RETROSPOT, Quantity: -6\n3. PurchasedItemDescription: WOOD 2 DRAWER CABINET WHITE FINISH, Quantity: -1\n4. PurchasedItemDescription: SAVE THE PLANET MUG, Quantity: -1\n5. PurchasedItemDescription: WOODEN FRAME ANTIQUE WHITE , Quantity: -2",
+      "answer": "You have purchased a total of 24 EDWARDIAN PARASOL BLACK and 42 EDWARDIAN PARASOL RED, making it 66 Edwardian parasols in total."
     }
   ]
 }

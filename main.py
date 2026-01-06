@@ -4,9 +4,8 @@ import spacy
 from slm import warmup_model, stream_response
 from llm import llm_response
 from confidence import load_tokenizer
-from data_retriever import get_user_context, write_to_output_txt
-# from query_augmentation import get_user_context
-from embeddings import OrderVectorStore, dict_to_text
+from data_retriever import get_user_data, write_to_output_txt
+from context import AggregatedUserData, OrderVectorStore, get_query_context
 
 def user_input_filter(user_input):
     #REGEX PATTERNS
@@ -23,8 +22,6 @@ def user_input_filter(user_input):
         "URL": r"(?:https?://)?(?:www\.)?(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,63}(?::\d{1,5})?(?:/[^\s]*)?"
     } 
     
-    #I'm just testing now if my sensitive info is filtereed correctley with my function before you recieve the inputs, please tell me if you see the info (thats bad) or if you just see the redacted. Email: test@gmail.com phone: 249-294-3849 credit_card: 3948 2834 2834 2837 ssn: 293-23-2940 SIN: 294-284-248
-    
     # Handle both single string and list of strings
     if isinstance(user_input, list):
         return [user_input_filter(x) for x in user_input]
@@ -32,9 +29,6 @@ def user_input_filter(user_input):
     filtered_user_input = user_input
     for label, pattern in patterns.items():
         filtered_user_input = re.sub(pattern, f"[REDACTED {label.upper()}]", filtered_user_input)
-
-    #debug
-    #print("\nFiltered input: ", filtered_user_input, "\n")
 
     return filtered_user_input
 
@@ -54,36 +48,74 @@ def initialize():
     log_probs_eval = load_tokenizer()
     return log_probs_eval
 
-def create_user_session(user_id, redact=True):
-    user_context = get_user_context(user_id, redact)
-    conversation = []
-    filtered_convo = []
-
-    # Create FAISS store for THIS user only
-    vector_store = OrderVectorStore(user_context)
-
-    return user_context, conversation, filtered_convo, vector_store
-
-def process_message(user_id, user_input, args, conversation, filtered_convo, user_context, log_probs_eval, vector_store):
+def create_user_session(args, user_id, redact=True):
 
     start_time = time.time()
-    top_orders =  vector_store.search_and_mask(user_input, top_k=20)
+    user_data = get_user_data(user_id, redact)
     end_time = time.time()
 
     if (args.verbose):
-        print("\t[DEBUG] Data Augmentation Time: ", end_time - start_time)
+        print("\t[DEBUG] Time to collect all user data: ", end_time - start_time)
+    
+    conversation = []
+    filtered_convo = []
 
 
+    # Create FAISS store for THIS user only
+    start_time = time.time()
+    vector_store = OrderVectorStore(user_data)
+    end_time = time.time()
+    
+    if(args.verbose):
+        print("\t[DEBUG] Time to create FAISS store: ", end_time - start_time)
+
+    start_time = time.time()
+    aggregated_user_data = AggregatedUserData(user_data)
+    end_time = time.time()
+
+    if(args.verbose):
+        print("\t[DEBUG] Time to Aggregate data: ", end_time - start_time)
+
+    return user_data, conversation, filtered_convo, vector_store, aggregated_user_data
+
+def process_message(
+        user_id,
+        user_input,
+        args,
+        conversation,
+        filtered_convo,
+        user_data,
+        log_probs_eval,
+        vector_store,
+        aggregated_user_data
+):
+
+    query_context = get_query_context(
+        args,
+        user_input=user_input,
+        user_data=user_data,
+        aggregated_user_data=aggregated_user_data,
+        vector_store=vector_store,
+    )
+    #top_orders =  vector_store.search_and_mask(user_input, top_k=20)
     if (args.verbose):
-        print(f"\t[DEBUG] Top Orders:{top_orders}")
+        print(f"\t[DEBUG] User context:{query_context.replace("\n", "\\n")}") # Note: Remove the .replace to make the debug message prettier.
 
     filtered_input = user_input_filter(user_input)
     filtered_input = entity_recognition_filter(filtered_input)
-    print("\nNLP Spacy filtered input: ", filtered_input, "\n")
-    filtered_context = user_input_filter(top_orders)
 
-    conversation.append({"role": "user", "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). If you're unsure, say you're unsure. Negative quantities are returns. User input: {user_input} (User context: {top_orders})\n"})
-    filtered_convo.append({"role": "user", "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). Negative quantities are returns. User input: {filtered_input} (User context: {filtered_context})\n"})
+    print("\nNLP Spacy filtered input: ", filtered_input, "\n")
+    
+    filtered_query_context = user_input_filter(query_context)
+
+    conversation.append({
+        "role": "user",
+        "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). If you're unsure, say you're unsure. Negative quantities are returns. User input: {user_input} (User context:\n {query_context})\n"
+    })
+    filtered_convo.append({
+        "role": "user",
+        "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). Negative quantities are returns. User input: {filtered_input} (User context: {filtered_query_context})\n"
+    })
 
     print("AI: ", end="", flush=True)
 
@@ -116,8 +148,8 @@ def main_loop(args):
         print("Invalid user ID. Please enter a number.")
         return
     
-    user_context, conversation, filtered_convo, vector_store = create_user_session(user_id)
-    # write_to_output_txt(user_context)
+    user_data, conversation, filtered_convo, vector_store, aggregated_user_data = create_user_session(args, user_id)
+    # write_to_output_txt(user_data)
 
     print("Chat with Ollama (type 'exit' or 'quit' to end)")
     print("=" * 60)
@@ -129,8 +161,8 @@ def main_loop(args):
             break
 
         process_message(user_id, user_input, args, 
-            conversation, filtered_convo, user_context, 
-            log_probs_eval, vector_store)
+            conversation, filtered_convo, user_data, 
+            log_probs_eval, vector_store, aggregated_user_data)
 
         print() 
 
