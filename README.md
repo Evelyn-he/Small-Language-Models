@@ -12,6 +12,9 @@ To make API calls to ChatGPT, do the following:
 1. Go to `https://platform.openai.com/api-keys`
 2. Copy the API key and set it into your environment: `$env:OPENAI_API_KEY="<key>"`
 
+## Dependencies for NER filter function:
+Currently the second layer filter function uses spacy, to download the required files for it to run please run
+`python -m spacy download en_core_web_sm`
 
 ## To Run the main loop
 
