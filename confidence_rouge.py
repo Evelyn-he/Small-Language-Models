@@ -10,7 +10,7 @@ def get_verbalized_confidence(answer):
     answer = answer.lower()
     answer = re.sub(r'[^a-zA-Z0-9\s]', '', answer)
 
-    verbalized_nonconfidence = ["sorry", "as a", "restricted", "microsoft", "unsure"]
+    verbalized_nonconfidence = ["sorry", " as a ", "restricted", "microsoft", "unsure"]
 
     confident = True
     for w in verbalized_nonconfidence:
@@ -76,12 +76,15 @@ def calculate_rouge_confidence(responses):
 def evaluate_rouge_confidence(model, prompt, original_response, num_samples, 
                               rouge_threshold=0.5, verbose=False):
     if not get_verbalized_confidence(original_response):
+        if verbose:
+            print("Failed verbalized confidence check")
         return False
     
     additional_responses = generate_multiple_responses(model, prompt, num_samples)
     
     if not additional_responses:
-        # print("Cannot not generate additional samples")
+        if verbose:
+            print("Cannot not generate additional samples")
         return False
     
     all_responses = [original_response] + additional_responses

@@ -87,7 +87,7 @@ def stream_response(args, messages, log_probs_eval=None):
         prompt=prompt,
         original_response=response_text,
         num_samples=2,  # generate 2 additional responses for comparison
-        rouge_threshold=0.3,  # confidence threshold (adjustable)
+        rouge_threshold=0.25,  # confidence threshold (adjustable)
         verbose=args.verbose
     )
     

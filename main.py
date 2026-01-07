@@ -147,6 +147,15 @@ def process_message(
     conversation.append({"role": "assistant", "content": reply})
     filtered_convo.append({"role": "assistant", "content": reply})
 
+    max_saved_prompt = 0 # currently disable any saved prompt
+    max_length = max_saved_prompt * 2 # 1 for user content & 1 for assistant content
+    if max_length == 0:
+        conversation.clear()
+        filtered_convo.clear()
+    elif len(conversation) > max_length:
+        del conversation[:-max_length]
+        del filtered_convo[:-max_length]
+
     return reply
 
 
