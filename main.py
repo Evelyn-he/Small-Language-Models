@@ -48,19 +48,7 @@ def initialize():
     log_probs_eval = load_tokenizer()
     return log_probs_eval
 
-def create_user_session(user_id, redact=True):
-    user_context = get_user_context(user_id, redact)
-    conversation = []
-    filtered_convo = []
-    # write_to_output_txt(user_context)
-
-    # Create FAISS store for THIS user only
-    vector_store = OrderVectorStore(user_context)
-
-    return user_context, conversation, filtered_convo, vector_store
-
-def process_message(user_id, user_input, args, conversation, filtered_convo, user_context, log_probs_eval, vector_store):
-
+def create_user_session(args, user_id, redact=True):
     start_time = time.time()
     user_data = get_user_data(user_id, redact)
     end_time = time.time()
