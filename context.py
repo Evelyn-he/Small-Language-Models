@@ -7,6 +7,108 @@ import faiss
 hf_model = SentenceTransformer("all-MiniLM-L6-v2")  
 # hf_model = SentenceTransformer("multi-qa-MiniLM-L6-cos-v1")
 
+def embed_text(text: str) -> np.ndarray:
+    return hf_model.encode(text, normalize_embeddings=True).astype("float32")
+
+def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+#Get dynamic relevant fields from user input
+def select_relevant_fields(query: str, purchase_col_embeddings, threshold=0.25):
+    query_emb = embed_text(query)
+
+    fields = []
+    for col_doc in purchase_col_embeddings:
+        col_name = col_doc["column"]
+        col_emb = np.array(col_doc["embedding"], dtype="float32")
+        sim = cosine_similarity(query_emb, col_emb)
+        if sim >= threshold:
+            fields.append(col_name)
+
+    #common query mappings:
+    alias_map = {
+        "price": ["UnitPrice"],
+        "cost": ["UnitPrice"],
+        "much": ["UnitPrice"],
+        "qty": ["Quantity"],
+        "quantity": ["Quantity"],
+        "number": ["Quantity"],
+        "many": ["Quantity"],
+        "latest":["InvoiceDate"],
+        "last":["InvoiceDate"],
+        "when":["InvoiceDate"],
+        "tracking":["TrackingNumber"],
+        "where":["Country"],
+    }
+    query_lower = query.lower()
+
+    for keyword, mapped_fields in alias_map.items():
+            if keyword in query_lower:
+                for f in mapped_fields:
+                    if f not in fields:
+                        fields.append(f)
+
+    # Always keep PurchasedItemDescription for semantic product matching
+    if "Title" not in fields:
+        fields.append("Title")
+
+    return fields
+
+def vector_search_purchases(purchases, user_id: str, query: str, project_stage, top_k: int=15) -> list[dict]:
+    query_vector = query.tolist()
+    pipeline = [
+        {
+            "$vectorSearch": {
+                "index": "embeddings_index",
+                "path": "embedding",
+                "queryVector": query_vector,
+                "filter": {
+                    "CustomerID": user_id
+                },
+                "numCandidates": 50,
+                "limit": top_k
+            }
+        },
+        {
+            "$project": project_stage
+        }
+    ]
+
+    return list(purchases.aggregate(pipeline))
+
+def format_list_of_dicts(lst: list[dict], title: str) -> str:
+    if not lst:
+        return f"--- {title} ---\n(no data)"
+
+    lines = [f"--- {title} ---"]
+    for i, d in enumerate(lst, 1):
+        # Remove score if present
+        d_filtered = {k: v for k, v in d.items() if k != "score"}
+        entries = ", ".join(f"{k}: {v}" for k, v in d_filtered.items())
+        lines.append(f"{i}. {entries}")
+    return "\n".join(lines)
+
+def get_query_context(args, user_id, user_input, data, top_k=10):
+
+    purchases = data["purchases"]
+    purchases_col_embeddings = list(data["purchase_col_embeddings"].find({}))
+    embedded_query = embed_text(user_input)
+
+    relevant_fields = select_relevant_fields(user_input, purchases_col_embeddings)
+
+    project_stage = {field: 1 for field in relevant_fields}
+    project_stage["_id"] = 0
+    project_stage["score"] = {"$meta": "vectorSearchScore"}
+
+    top_orders = vector_search_purchases(
+        purchases=purchases,
+        user_id=user_id,
+        query=embedded_query,
+        project_stage=project_stage,
+        top_k=top_k
+    )
+
+    return format_list_of_dicts(top_orders, "Top Relevant Orders")
 
 
 # ################################################################### (STEP 1) Functions to compute semantic similarity & Top-k orders ###################################################################
@@ -188,108 +290,6 @@ hf_model = SentenceTransformer("all-MiniLM-L6-v2")
 
 # ################################################################### Main Function to Augment Query ###################################################################
 
-def embed_text(text: str) -> np.ndarray:
-    return hf_model.encode(text, normalize_embeddings=True).astype("float32")
-
-def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
-
-#Get dynamic relevant fields from user input
-def select_relevant_fields(query: str, purchase_col_embeddings, threshold=0.25):
-    query_emb = embed_text(query)
-
-    fields = []
-    for col_doc in purchase_col_embeddings:
-        col_name = col_doc["column"]
-        col_emb = np.array(col_doc["embedding"], dtype="float32")
-        sim = cosine_similarity(query_emb, col_emb)
-        if sim >= threshold:
-            fields.append(col_name)
-
-    #common query mappings:
-    alias_map = {
-        "price": ["UnitPrice"],
-        "cost": ["UnitPrice"],
-        "much": ["UnitPrice"],
-        "qty": ["Quantity"],
-        "quantity": ["Quantity"],
-        "number": ["Quantity"],
-        "many": ["Quantity"],
-        "latest":["InvoiceDate"],
-        "last":["InvoiceDate"],
-        "when":["InvoiceDate"],
-        "tracking":["TrackingNumber"],
-        "where":["Country"],
-    }
-    query_lower = query.lower()
-
-    for keyword, mapped_fields in alias_map.items():
-            if keyword in query_lower:
-                for f in mapped_fields:
-                    if f not in fields:
-                        fields.append(f)
-
-    # Always keep PurchasedItemDescription for semantic product matching
-    if "Title" not in fields:
-        fields.append("Title")
-
-    return fields
-
-def vector_search_purchases(purchases, user_id: str, query: str, project_stage, top_k: int=15) -> list[dict]:
-    query_vector = query.tolist()
-    pipeline = [
-        {
-            "$vectorSearch": {
-                "index": "embeddings_index",
-                "path": "embedding",
-                "queryVector": query_vector,
-                "filter": {
-                    "CustomerID": user_id
-                },
-                "numCandidates": 50,
-                "limit": top_k
-            }
-        },
-        {
-            "$project": project_stage
-        }
-    ]
-
-    return list(purchases.aggregate(pipeline))
-
-def format_list_of_dicts(lst: list[dict], title: str) -> str:
-    if not lst:
-        return f"--- {title} ---\n(no data)"
-
-    lines = [f"--- {title} ---"]
-    for i, d in enumerate(lst, 1):
-        # Remove score if present
-        d_filtered = {k: v for k, v in d.items() if k != "score"}
-        entries = ", ".join(f"{k}: {v}" for k, v in d_filtered.items())
-        lines.append(f"{i}. {entries}")
-    return "\n".join(lines)
-
-def get_query_context(args, user_id, user_input, data, top_k=10):
-
-    purchases = data["purchases"]
-    purchases_col_embeddings = list(data["purchase_col_embeddings"].find({}))
-    embedded_query = embed_text(user_input)
-
-    relevant_fields = select_relevant_fields(user_input, purchases_col_embeddings)
-
-    project_stage = {field: 1 for field in relevant_fields}
-    project_stage["_id"] = 0
-    project_stage["score"] = {"$meta": "vectorSearchScore"}
-
-    top_orders = vector_search_purchases(
-        purchases=purchases,
-        user_id=user_id,
-        query=embedded_query,
-        project_stage=project_stage,
-        top_k=top_k
-    )
-
-    return format_list_of_dicts(top_orders, "Top Relevant Orders")
 
 
 # def get_query_context(

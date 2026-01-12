@@ -3,15 +3,11 @@ import time
 import spacy
 import os
 import certifi
-from dotenv import load_dotenv
 from pymongo import MongoClient
 
 from slm import warmup_model, stream_response
 from llm import llm_response
 from context import get_query_context
-#from confidence import load_tokenizer
-#from data_retriever import get_user_data, write_to_output_txt
-#from context import AggregatedUserData, OrderVectorStore get_query_context
 
 DB_NAME = "slm-capstone-proj"
 CUSTOMER_TABLE = "purchases"
@@ -61,40 +57,6 @@ def entity_recognition_filter(user_input):
     #print("\nNLP Spacy filtered input: ", user_input, "\n")
     return user_input
 
-# def initialize():
-#     warmup_model()
-    # log_probs_eval = load_tokenizer()
-    # return log_probs_eval
-
-# def create_user_session(args, user_id, redact=True):
-#     start_time = time.time()
-#     user_data = get_user_data(user_id, redact)
-#     end_time = time.time()
-# 
-#     if (args.verbose):
-#         print("\t[DEBUG] Time to collect all user data: ", end_time - start_time)
-#     
-#     conversation = []
-#     filtered_convo = []
-# 
-# 
-#     # Create FAISS store for THIS user only
-#     start_time = time.time()
-#     vector_store = OrderVectorStore(user_data)
-#     end_time = time.time()
-#     
-#     if(args.verbose):
-#         print("\t[DEBUG] Time to create FAISS store: ", end_time - start_time)
-# 
-#     start_time = time.time()
-#     aggregated_user_data = AggregatedUserData(user_data)
-#     end_time = time.time()
-# 
-#     if(args.verbose):
-#         print("\t[DEBUG] Time to Aggregate data: ", end_time - start_time)
-# 
-#     return user_data, conversation, filtered_convo, vector_store, aggregated_user_data
-
 def create_user_session(args, user_id):
     # Retrieve tables from MongoDB
     start_time = time.time()
@@ -117,13 +79,6 @@ def process_message(
         data
 ):
 
-    # query_context = get_query_context(
-    #     args,
-    #     user_input=user_input,
-    #     user_data=user_data,
-    #     aggregated_user_data=aggregated_user_data,
-    #     vector_store=vector_store,
-    # )
     query_context = get_query_context(
         args=args,
         user_id=user_id,
