@@ -2,7 +2,7 @@ import socket
 import threading
 import sys
 from main import (
-    initialize,
+    warmup_model,
     create_user_session,
     process_message
 )
@@ -12,7 +12,7 @@ HOST = "0.0.0.0"
 clients = []
 clients_lock = threading.Lock()
 running = True
-log_probs_eval = initialize()
+warmup_model()
 
 def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -46,7 +46,9 @@ def handle_client(conn, addr, args):
             conn.close()
             return
 
-        user_data, conversation, filtered_convo, vector_store, aggregated_user_data = create_user_session(args, user_id, redact=True)
+        user_data = create_user_session(args, user_id)
+        conversation = []
+        filtered_convo = []
 
         conn.send(b"Login successful. You can start chatting now.\n\nYou: ")
 
@@ -59,8 +61,7 @@ def handle_client(conn, addr, args):
             if user_input.lower() in {"exit", "quit"}:
                 conn.send(b"SERVER_SHUTDOWN")
                 break
-
-            reply = process_message(user_id, user_input, args, conversation, filtered_convo, user_data, log_probs_eval, vector_store, aggregated_user_data)
+            reply = process_message(user_id, user_input, args, conversation, filtered_convo, user_data)
             # prompt, reply = generate_slm_result(user_id, user_input, args, conversation, filtered_convo, user_data)
 
             # perform_post_slm_computation(conversation, filtered_convo, log_probs_eval, prompt, reply)

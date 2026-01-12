@@ -20,7 +20,7 @@ def warmup_model():
     }
     requests.post(OLLAMA_API, json=payload)
 
-def stream_response(args, messages, log_probs_eval=None):
+def stream_response(args, messages):
 
     start_time = time.time()
     prompt = ""
@@ -80,7 +80,7 @@ def stream_response(args, messages, log_probs_eval=None):
 
     start_time = time.time()
     
-    # confidence = evaluate_confidence(prompt, response_text, log_probs_eval)
+    # confidence = evaluate_confidence(prompt, response_text)
 
     confidence = evaluate_rouge_confidence(
         model=MODEL,

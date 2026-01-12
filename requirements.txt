@@ -15,3 +15,5 @@ dotenv==0.9.9
 faiss-cpu==1.13.0
 spacy==3.8.11
 rouge-score
+pymongo==4.16.0
+dotenv==0.9.9

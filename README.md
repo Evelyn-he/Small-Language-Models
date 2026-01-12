@@ -16,6 +16,12 @@ To make API calls to ChatGPT, do the following:
 Currently the second layer filter function uses spacy, to download the required files for it to run please run
 `python -m spacy download en_core_web_sm`
 
+## Dependencies to connect to MongoDB:
+1. Sign up for a MongoDB account here: `https://www.mongodb.com/products/platform/atlas-database`
+2. Once you are signed in, send the email address you used to sign in to Evelyn, to be invited to the project.
+3. In the project overview, click on the `Connect` button, then click on `Compass`. Copy the connection string into your `.env` with variable name `MONGO_URI`.
+4. (Optional but very helpful): Download MongoDB compass at `https://www.mongodb.com/products/tools/compass`. This is a helpful GUI tool that lets you see the data easily.
+
 ## To Run the main loop
 
 1. Make sure correct requirements are installed through `pip install -r requirements.txt`

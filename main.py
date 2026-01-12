@@ -1,11 +1,28 @@
 import re
 import time
 import spacy
+import os
+from dotenv import load_dotenv
+from pymongo import MongoClient
+
 from slm import warmup_model, stream_response
 from llm import llm_response
-from confidence import load_tokenizer
-from data_retriever import get_user_data, write_to_output_txt
-from context import AggregatedUserData, OrderVectorStore, get_query_context
+from context import get_query_context
+#from confidence import load_tokenizer
+#from data_retriever import get_user_data, write_to_output_txt
+#from context import AggregatedUserData, OrderVectorStore get_query_context
+
+DB_NAME = "slm-capstone-proj"
+CUSTOMER_TABLE = "purchases"
+BUSINESS_TABLE = "products"
+CUSTOMER_COL = "purchases_columns_meta"
+
+# Create a shared environment across all connections
+_client = MongoClient(os.environ["MONGO_URI"])
+
+def db_connection():
+    db = _client[DB_NAME]
+    return db[CUSTOMER_TABLE], db[BUSINESS_TABLE], db[CUSTOMER_COL]
 
 def user_input_filter(user_input):
     #REGEX PATTERNS
@@ -43,39 +60,52 @@ def entity_recognition_filter(user_input):
     #print("\nNLP Spacy filtered input: ", user_input, "\n")
     return user_input
 
-def initialize():
-    warmup_model()
-    log_probs_eval = load_tokenizer()
-    return log_probs_eval
+# def initialize():
+#     warmup_model()
+    # log_probs_eval = load_tokenizer()
+    # return log_probs_eval
 
-def create_user_session(args, user_id, redact=True):
+# def create_user_session(args, user_id, redact=True):
+#     start_time = time.time()
+#     user_data = get_user_data(user_id, redact)
+#     end_time = time.time()
+# 
+#     if (args.verbose):
+#         print("\t[DEBUG] Time to collect all user data: ", end_time - start_time)
+#     
+#     conversation = []
+#     filtered_convo = []
+# 
+# 
+#     # Create FAISS store for THIS user only
+#     start_time = time.time()
+#     vector_store = OrderVectorStore(user_data)
+#     end_time = time.time()
+#     
+#     if(args.verbose):
+#         print("\t[DEBUG] Time to create FAISS store: ", end_time - start_time)
+# 
+#     start_time = time.time()
+#     aggregated_user_data = AggregatedUserData(user_data)
+#     end_time = time.time()
+# 
+#     if(args.verbose):
+#         print("\t[DEBUG] Time to Aggregate data: ", end_time - start_time)
+# 
+#     return user_data, conversation, filtered_convo, vector_store, aggregated_user_data
+
+def create_user_session(args, user_id):
+    # Retrieve tables from MongoDB
     start_time = time.time()
-    user_data = get_user_data(user_id, redact)
+    purchases, products, purchase_col_embeddings = db_connection()
     end_time = time.time()
 
     if (args.verbose):
-        print("\t[DEBUG] Time to collect all user data: ", end_time - start_time)
+        print("\t[DEBUG] Time to get data from MongoDB: ", end_time - start_time)
+
+    data = {"purchases": purchases, "products": products, "purchase_col_embeddings": purchase_col_embeddings}
     
-    conversation = []
-    filtered_convo = []
-
-
-    # Create FAISS store for THIS user only
-    start_time = time.time()
-    vector_store = OrderVectorStore(user_data)
-    end_time = time.time()
-    
-    if(args.verbose):
-        print("\t[DEBUG] Time to create FAISS store: ", end_time - start_time)
-
-    start_time = time.time()
-    aggregated_user_data = AggregatedUserData(user_data)
-    end_time = time.time()
-
-    if(args.verbose):
-        print("\t[DEBUG] Time to Aggregate data: ", end_time - start_time)
-
-    return user_data, conversation, filtered_convo, vector_store, aggregated_user_data
+    return data
 
 def process_message(
         user_id,
@@ -83,22 +113,25 @@ def process_message(
         args,
         conversation,
         filtered_convo,
-        user_data,
-        log_probs_eval,
-        vector_store,
-        aggregated_user_data
+        data
 ):
 
+    # query_context = get_query_context(
+    #     args,
+    #     user_input=user_input,
+    #     user_data=user_data,
+    #     aggregated_user_data=aggregated_user_data,
+    #     vector_store=vector_store,
+    # )
     query_context = get_query_context(
-        args,
+        args=args,
+        user_id=user_id,
         user_input=user_input,
-        user_data=user_data,
-        aggregated_user_data=aggregated_user_data,
-        vector_store=vector_store,
+        data=data
     )
     #top_orders =  vector_store.search_and_mask(user_input, top_k=20)
     if (args.verbose):
-        print(f"\t[DEBUG] User context:{query_context.replace("\n", "\\n")}") # Note: Remove the .replace to make the debug message prettier.
+        print(f"\t[DEBUG] User context:{query_context}") # Note: Remove the .replace to make the debug message prettier.
 
     filtered_input = user_input_filter(user_input)
     filtered_input = entity_recognition_filter(filtered_input)
@@ -118,7 +151,7 @@ def process_message(
 
     print("AI: ", end="", flush=True)
 
-    reply, confidence = stream_response(args, conversation, log_probs_eval)
+    reply, confidence = stream_response(args, conversation)
 
     if not confidence:
 
@@ -148,7 +181,7 @@ def process_message(
 
 
 def main_loop(args):
-    log_probs_eval = initialize()
+    warmup_model()
 
     try:
         user_id = int(input("Enter user ID: ").strip())
@@ -156,7 +189,10 @@ def main_loop(args):
         print("Invalid user ID. Please enter a number.")
         return
     
-    user_data, conversation, filtered_convo, vector_store, aggregated_user_data = create_user_session(args, user_id)
+    data = create_user_session(args, user_id)
+    
+    conversation = []
+    filtered_convo = []
     # write_to_output_txt(user_data)
 
     print("Chat with Ollama (type 'exit' or 'quit' to end)")
@@ -168,9 +204,7 @@ def main_loop(args):
             print("Exiting ...")
             break
 
-        process_message(user_id, user_input, args, 
-            conversation, filtered_convo, user_data, 
-            log_probs_eval, vector_store, aggregated_user_data)
+        process_message(user_id, user_input, args, conversation, filtered_convo, data)
 
         print() 
 
