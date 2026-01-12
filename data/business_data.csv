@@ -1,4 +1,4 @@
-StockCode,Description,UnitPrice,StockQuantity
+StockCode,Title,UnitPrice,StockQuantity
 10002,INFLATABLE POLITICAL GLOBE ,0.85,79
 10080,GROOVY CACTUS INFLATABLE,0.85,60
 10120,DOGGY RUBBER,0.21,80
@@ -944,7 +944,7 @@ StockCode,Description,UnitPrice,StockQuantity
 21991,BOHEMIAN COLLAGE STATIONERY SET,2.51,11
 21992,VINTAGE PAISLEY STATIONERY SET,2.95,19
 21993,FLORAL FOLK STATIONERY SET,2.51,54
-22016,Dotcomgiftshop Gift Voucher £100.00,83.33,99
+22016,Dotcomgiftshop Gift Voucher ï¿½100.00,83.33,99
 22021,BLUE FELT EASTER EGG BASKET,1.65,30
 22023,EMPIRE BIRTHDAY CARD,0.42,164
 22024,RAINY LADIES BIRTHDAY CARD,0.42,52
@@ -3918,9 +3918,9 @@ M,Manual,1.25,99
 PADS,PADS TO MATCH ALL CUSHIONS,0.001,66
 POST,POSTAGE,18.0,66
 S,SAMPLES,30.0,109
-gift_0001_10,Dotcomgiftshop Gift Voucher £10.00,8.33,23
-gift_0001_20,Dotcomgiftshop Gift Voucher £20.00,17.02,96
-gift_0001_30,Dotcomgiftshop Gift Voucher £30.00,25.53,102
-gift_0001_40,Dotcomgiftshop Gift Voucher £40.00,34.04,127
-gift_0001_50,Dotcomgiftshop Gift Voucher £50.00,42.55,13
+gift_0001_10,Dotcomgiftshop Gift Voucher ï¿½10.00,8.33,23
+gift_0001_20,Dotcomgiftshop Gift Voucher ï¿½20.00,17.02,96
+gift_0001_30,Dotcomgiftshop Gift Voucher ï¿½30.00,25.53,102
+gift_0001_40,Dotcomgiftshop Gift Voucher ï¿½40.00,34.04,127
+gift_0001_50,Dotcomgiftshop Gift Voucher ï¿½50.00,42.55,13
 m,Manual,2.55,70
