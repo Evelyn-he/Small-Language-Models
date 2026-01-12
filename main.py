@@ -2,6 +2,7 @@ import re
 import time
 import spacy
 import os
+import certifi
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
@@ -18,7 +19,7 @@ BUSINESS_TABLE = "products"
 CUSTOMER_COL = "purchases_columns_meta"
 
 # Create a shared environment across all connections
-_client = MongoClient(os.environ["MONGO_URI"])
+_client = MongoClient(os.environ["MONGO_URI"], tls=True, tlsCAFile=certifi.where())
 
 def db_connection():
     db = _client[DB_NAME]

@@ -17,3 +17,4 @@ spacy==3.8.11
 rouge-score
 pymongo==4.16.0
 dotenv==0.9.9
+certifi==2026.1.4
