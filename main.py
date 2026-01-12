@@ -87,7 +87,7 @@ def process_message(
     )
     #top_orders =  vector_store.search_and_mask(user_input, top_k=20)
     if (args.verbose):
-        print(f"\t[DEBUG] User context:{query_context}") # Note: Remove the .replace to make the debug message prettier.
+        print(f"\t[DEBUG] User context:\n{query_context}") # Note: Remove the .replace to make the debug message prettier.
 
     filtered_input = user_input_filter(user_input)
     filtered_input = entity_recognition_filter(filtered_input)

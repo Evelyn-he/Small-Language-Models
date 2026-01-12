@@ -1,6 +1,7 @@
 import time
 import numpy as np 
-from typing import List, Dict
+from typing import List, Dict, Any
+from collections import defaultdict
 
 from sentence_transformers import SentenceTransformer
 import faiss
@@ -76,17 +77,73 @@ def vector_search_purchases(purchases, user_id: str, query: str, project_stage, 
 
     return list(purchases.aggregate(pipeline))
 
-def format_list_of_dicts(lst: list[dict], title: str) -> str:
-    if not lst:
-        return f"--- {title} ---\n(no data)"
 
-    lines = [f"--- {title} ---"]
-    for i, d in enumerate(lst, 1):
-        # Remove score if present
-        d_filtered = {k: v for k, v in d.items() if k != "score"}
-        entries = ", ".join(f"{k}: {v}" for k, v in d_filtered.items())
-        lines.append(f"{i}. {entries}")
+def format_list_of_dicts(lst: List[Dict[str, Any]], fields: List[str]) -> str:
+    """
+    Formats order data into an SLM-friendly, schema-aware format.
+    """
+
+    # Static (item-level) fields
+    static_cols = ["StockCode", "UnitPrice", "Country"]
+
+    # Dynamic (event-level) fields
+    dynamic_cols = ["InvoiceNo", "Quantity", "InvoiceDate"]
+
+    # --- Group by Title ---
+    grouped = defaultdict(list)
+    for row in lst:
+        grouped[row["Title"]].append(row)
+
+    lines = []
+
+    # --- Schema ---
+    lines.append("SCHEMA:")
+    lines.append("Title: string")
+
+    for col in static_cols:
+        if col in fields:
+            lines.append(f"{col}: {type(lst[0][col]).__name__}")
+
+    active_dynamic = [c for c in dynamic_cols if c in fields]
+    if active_dynamic:
+        lines.append("Events: [" + ", ".join(active_dynamic) + "]")
+
+    lines.append("")  # spacer
+
+    # --- Records ---
+    for title, rows in grouped.items():
+        lines.append(f"ITEM: {title}")
+
+        # Emit static fields once
+        for col in static_cols:
+            if col in fields:
+                value = rows[0][col]
+                lines.append(f"{col}: {value}")
+
+        # Emit event table
+        if active_dynamic:
+            lines.append("EVENTS:")
+            for row in rows:
+                event = [str(row[c]) for c in active_dynamic]
+                lines.append("  - [" + ", ".join(event) + "]")
+
+        lines.append("")  # spacer between items
+
     return "\n".join(lines)
+
+
+
+
+#    if not lst:
+#        return f"--- {title} ---\n(no data)"
+#
+#    lines = [f"--- {title} ---"]
+#    for i, d in enumerate(lst, 1):
+#        # Remove score if present
+#        d_filtered = {k: v for k, v in d.items() if k != "score"}
+#        entries = ", ".join(f"{k}: {v}" for k, v in d_filtered.items())
+#        lines.append(f"{i}. {entries}")
+#    return "\n".join(lines)
 
 def get_query_context(args, user_id, user_input, data, top_k=10):
 
@@ -108,7 +165,7 @@ def get_query_context(args, user_id, user_input, data, top_k=10):
         top_k=top_k
     )
 
-    return format_list_of_dicts(top_orders, "Top Relevant Orders")
+    return format_list_of_dicts(top_orders, relevant_fields)
 
 
 # ################################################################### (STEP 1) Functions to compute semantic similarity & Top-k orders ###################################################################
