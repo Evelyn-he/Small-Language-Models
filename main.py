@@ -5,7 +5,7 @@ import os
 import certifi
 from pymongo import MongoClient
 
-from slm import warmup_model, stream_response
+from slm import warmup_model, stream_response, should_use_fallback
 from llm import llm_response
 from context import get_query_context
 
@@ -79,6 +79,13 @@ def process_message(
         data
 ):
 
+    filtered_input = user_input_filter(user_input)
+    filtered_input = entity_recognition_filter(filtered_input)
+
+    print("\nNLP Spacy filtered input: ", filtered_input, "\n")
+
+    fallback = should_use_fallback(args, filtered_input)
+
     query_context = get_query_context(
         args=args,
         user_id=user_id,
@@ -89,10 +96,6 @@ def process_message(
     if (args.verbose):
         print(f"\t[DEBUG] User context:\n{query_context}") # Note: Remove the .replace to make the debug message prettier.
 
-    filtered_input = user_input_filter(user_input)
-    filtered_input = entity_recognition_filter(filtered_input)
-
-    print("\nNLP Spacy filtered input: ", filtered_input, "\n")
     
     filtered_query_context = user_input_filter(query_context)
 
@@ -108,6 +111,7 @@ def process_message(
     print("AI: ", end="", flush=True)
 
     reply, confidence = stream_response(args, conversation)
+    confidence = fallback #don't use rouge confidence result for now
 
     if not confidence:
 
