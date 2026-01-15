@@ -110,10 +110,10 @@ def process_message(
 
     print("AI: ", end="", flush=True)
 
-    reply, confidence = stream_response(args, conversation)
-    confidence = fallback #don't use rouge confidence result for now
+    if not fallback: #use SLM if confident it can answer
+        reply, confidence = stream_response(args, conversation)
 
-    if not confidence:
+    else: #use LLM if not confident SLM can answer
 
         if (args.verbose):
             print(f"\t[DEBUG] Filtered input: {filtered_input}")
