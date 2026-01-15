@@ -7,7 +7,12 @@ from pymongo import MongoClient
 
 from slm import warmup_model, stream_response
 from llm import llm_response
-from context import get_query_context
+
+from context_augmentation.context import get_query_context
+from context_augmentation.routing import Router
+from context_augmentation.augment_purchase_query import PurchaseRetriever
+from context_augmentation.augment_product_query import ProductRetriever
+from context_augmentation.augment_faq_query import FAQRetriever
 
 DB_NAME = "slm-capstone-proj"
 CUSTOMER_TABLE = "purchases"
@@ -17,9 +22,36 @@ CUSTOMER_COL = "purchases_columns_meta"
 # Create a shared environment across all connections
 _client = MongoClient(os.environ["MONGO_URI"], tls=True, tlsCAFile=certifi.where())
 
-def db_connection():
+def create_user_session(args):
+    # Retrieve tables from MongoDB
+    start_time = time.time()
+
     db = _client[DB_NAME]
-    return db[CUSTOMER_TABLE], db[BUSINESS_TABLE], db[CUSTOMER_COL]
+
+    product_retriever = ProductRetriever(db["products"])
+    purchase_retriever = PurchaseRetriever(db["purchases"], db["purchases_columns_meta"])
+    faq_retriever = FAQRetriever(db["faqs"])
+    router = Router(db["collection_routing"], db["purchases_routing"])
+
+    retrievers = {
+        "purchases": purchase_retriever,
+        "products": product_retriever,
+        "faq": faq_retriever
+    }
+
+    # data = {
+    #     "purchases": db["purchases"],
+    #     "purchases_col_embeddings": db["purchases_columns_meta"],
+    #     "purchases_routing": db["purchase_routing"],
+    #     "products": db["products"],
+    # }
+
+    end_time = time.time()
+
+    if (args.verbose):
+        print("\t[DEBUG] Time to get data from MongoDB: ", end_time - start_time)
+
+    return retrievers, router
 
 def user_input_filter(user_input):
     #REGEX PATTERNS
@@ -57,37 +89,19 @@ def entity_recognition_filter(user_input):
     #print("\nNLP Spacy filtered input: ", user_input, "\n")
     return user_input
 
-def create_user_session(args, user_id):
-    # Retrieve tables from MongoDB
-    start_time = time.time()
-    purchases, products, purchase_col_embeddings = db_connection()
-    end_time = time.time()
 
-    if (args.verbose):
-        print("\t[DEBUG] Time to get data from MongoDB: ", end_time - start_time)
-
-    data = {"purchases": purchases, "products": products, "purchase_col_embeddings": purchase_col_embeddings}
-    
-    return data
-
-def process_message(
-        user_id,
-        user_input,
-        args,
-        conversation,
-        filtered_convo,
-        data
-):
+def process_message(user_id, user_input, args, conversation, filtered_convo, retrievers, router):
 
     query_context = get_query_context(
         args=args,
         user_id=user_id,
-        user_input=user_input,
-        data=data
+        query=user_input,
+        retrievers=retrievers,
+        router=router
     )
-    #top_orders =  vector_store.search_and_mask(user_input, top_k=20)
+    
     if (args.verbose):
-        print(f"\t[DEBUG] User context:\n{query_context}") # Note: Remove the .replace to make the debug message prettier.
+        print(f"\t[DEBUG] User context:\n{query_context}")
 
     filtered_input = user_input_filter(user_input)
     filtered_input = entity_recognition_filter(filtered_input)
@@ -145,7 +159,7 @@ def main_loop(args):
         print("Invalid user ID. Please enter a number.")
         return
     
-    data = create_user_session(args, user_id)
+    retrievers, router = create_user_session(args)
     
     conversation = []
     filtered_convo = []
@@ -160,7 +174,7 @@ def main_loop(args):
             print("Exiting ...")
             break
 
-        process_message(user_id, user_input, args, conversation, filtered_convo, data)
+        process_message(user_id, user_input, args, conversation, filtered_convo, retrievers, router)
 
         print() 
 
