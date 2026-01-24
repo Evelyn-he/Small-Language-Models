@@ -32,34 +32,48 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Define routing examples
 routing_data = {
-    "latest_purchase": [
+    "order_based": [
         "Tell me about my latest order",
         "What was my most recent purchase?",
-        "When did I put in the invoice for my latest purchase?",
-        "What is the invoice number for my most recent purchase?",
+        "When did I last order my latest purchase?",
+        "What is the tracking number for my most recent purchase?",
         "What items do I have in my latest order?",
         "How much did I spend on my latest order?",
         "How many items did I buy in my latest order?",
         "Where was my most recent order shipped to?",
-        "Show me my last invoice",
+        "Show me my last order",
         "What did I just buy?",
         "Details about my newest order",
-        "My most recent transaction"
+        "My most recent transaction",
+        "How many vases did I buy in my latest order?",
+        "Tell me about my order C56332",
+        "How many vases did I buy in order with tracking number 32345?",
+        "How much did order 832301 cost?",
+        "How many doorbells did I buy in C29834?",
+        "What did I order on Dec. 10th, 2011?",
+        "how many boxes did I buy on Nov. 23rd, 2010?",
+        "Has my most recent order been delivered?",
+        "What's the delivery status on my most recent order?",
+        "Did I order any pens in my most recent order?",
+        "Does my latest order contain any vases?",
+        "How many antiques did i buy in my most recent order?",
+        "How many gummies did I buy in order 234859?"
     ],
-    "specific_item": [
+    "item_based": [
         "When was the last time I ordered socks?",
-        "Tell me about my invoice 56332",
         "How much have I spent on halloween decorations in total?",
         "How many candles have I bought?",
-        "how many vases did I buy in invoice 32345?",
         "have I bought a pan before?",
         "What was the last time I ordered a pencil sharpener?",
         "Show me all my candle purchases",
         "Find purchases containing 'heart'",
         "How many times have I ordered the DOGGY RUBBER?",
-        "What did I buy in December 2010?",
         "History of all my lantern purchases",
-        "When was my latest order of pet food?"
+        "When was my latest order of pet food?",
+        "What types of antiques have I bought before?",
+        "How many frames have I ordered before?",
+        "Have I bought any photo cubes before?",
+        "Have I ordered a disco ball before?"
     ]
 }
 
