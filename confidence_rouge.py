@@ -79,7 +79,7 @@ def evaluate_rouge_confidence(model, prompt, original_response, num_samples,
         if verbose:
             print("Failed verbalized confidence check")
         return False
-    
+ 
     additional_responses = generate_multiple_responses(model, prompt, num_samples)
     
     if not additional_responses:
