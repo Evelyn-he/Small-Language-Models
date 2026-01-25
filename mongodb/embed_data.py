@@ -7,7 +7,7 @@ import os
 BATCH_SIZE = 128
 VECTOR_FIELD = "embedding"
 DB_NAME = "slm-capstone-proj"
-COLLECTION_NAME = "products"
+COLLECTION_NAME = "purchases"
 
 load_dotenv()
 client = MongoClient(os.environ["MONGO_URI"])
@@ -26,9 +26,7 @@ print("Model Loaded")
 def build_text(doc):
     fields = {
         "Title": doc.get("Title"),
-        "StockCode": doc.get("StockCode"),
-        "UnitPrice": doc.get("UnitPrice"),
-        "StockQuantity": doc.get("StockQuantity")
+        "Address": doc.get("Address"),
     }
 
     for field, value in fields.items():
@@ -41,9 +39,7 @@ cursor = collection.find(
     {VECTOR_FIELD: {"$exists": False}},  # Only documents without embeddings
     {
         "Title": 1,
-        "StockCode": 1,
-        "UnitPrice": 1,
-        "StockQuantity": 1
+        "Address": 1,
     }
 )
 

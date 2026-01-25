@@ -1,5 +1,5 @@
 import argparse
-from main import main_loop
+from src.main import main_loop
 
 def main():
     parser = argparse.ArgumentParser()
@@ -7,6 +7,12 @@ def main():
     parser.add_argument(
         "--verbose",
         "-v",
+        action="store_true"
+    )
+
+    parser.add_argument(
+        "--generate_data",
+        "-gd",
         action="store_true"
     )
 

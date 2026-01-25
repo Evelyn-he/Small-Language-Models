@@ -61,21 +61,30 @@ routing_data = {
         "What did I order last month?",
         "Show me my purchase history",
         "How many CREAM CUPID HEARTS COAT HANGER did I buy?",
-        "What was my last invoice?",
+        "What was my last order?",
         "When did I buy the WHITE METAL LANTERN?",
         "What orders did I place in December 2010?",
         "What's my total spending this year?",
         "Did I order from you before?",
         "How much did I spend on my last order?",
-        "Can I see my invoice from last week?",
+        "Can I see my order from last week?",
         "What did I purchase on December 1st?",
         "Have I ever bought any heart-themed products?",
         "What quantity of items did I buy in my last order?",
         "When was my first purchase with you?",
         "When did I last order a mug?",
-        "What is the invoice number of my lastest order?",
-        "What is the invoice number of my red mugs?",
+        "What is the tracking number of my lastest order?",
+        "What is the order number of my red mugs?",
         "What country was my glasses shipped to?",
+        "When was my latest order?",
+        "Has my order 536367 arrived?",
+        "Has my latest order arrived yet?",
+        "Has my latest order been delivered yet?",
+        "How many wooden frames have I bought before?",
+        "How much have I spent on christmas decorations?",
+        "How many measuring tapes have I bought before?",
+        "What types of measuring tapes have I bought before?",
+        "How much have I spent on measuring tapes in total?",
     ],
     "products": [
         "Do you have INFLATABLE POLITICAL GLOBE in stock?",
@@ -91,7 +100,8 @@ routing_data = {
         "How much stock do you have of the DOGGY RUBBER?",
         "What products are currently out of stock?",
         "Do you sell any political or globe items?"
-        "What is the stock code of the antique frames?"
+        "What is the stock code of the antique frames?",
+        "What's the difference between a gold and black tape measure?"
     ]
 }
 

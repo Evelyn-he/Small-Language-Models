@@ -1,7 +1,7 @@
 import socket
 import threading
 import sys
-from main import (
+from src.main import (
     warmup_model,
     create_user_session,
     process_message
@@ -46,7 +46,7 @@ def handle_client(conn, addr, args):
             conn.close()
             return
 
-        user_data = create_user_session(args, user_id)
+        retrievers, router = create_user_session(args, user_id)
         conversation = []
         filtered_convo = []
 
@@ -61,7 +61,7 @@ def handle_client(conn, addr, args):
             if user_input.lower() in {"exit", "quit"}:
                 conn.send(b"SERVER_SHUTDOWN")
                 break
-            reply = process_message(user_id, user_input, args, conversation, filtered_convo, user_data)
+            reply = process_message(user_id, user_input, args, conversation, filtered_convo, retrievers, router)
             # prompt, reply = generate_slm_result(user_id, user_input, args, conversation, filtered_convo, user_data)
 
             # perform_post_slm_computation(conversation, filtered_convo, log_probs_eval, prompt, reply)
@@ -133,6 +133,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--verbose", "-v", action="store_true")
     parser.add_argument("--port", "-p", default=5001, type=int)
+    parser.add_argument("--generate_data", "-gd", action="store_true")
     args = parser.parse_args()
 
     start_server(args)
