@@ -28,18 +28,21 @@ Currently the second layer filter function uses spacy, to download the required 
 2. Launch ollama: `ollama list`.
 3. In the root folder, run `python cli.py` to spin up the program.
 
-## To run the server-client api on a single laptop
+## To run the Chatbot UI
 
-1. On one terminal, run `python server.py [-p <port>]`, you should see `[SERVER] Listening on <ip>:<port>` message from the output. 
-    (`-p` is an optional flag. The port is set to 5001 by default)
-2. On another terminal, run `python client.py`, and enter the ip and port you got previously.
-
-## To run the server-client api on different laptops
-
-1. On the laptop that runs the server:
-    1. install ngrok
-    2. run `python server.py [-p <port>]`
-    3. on a new terminal, run `ngrok tcp <port>`. You will see an address in the format of `<digit>.tcp.ngrok.io:<new_port>`
-2. On the laptop(s) that run the client(s):
-    1. run `python client.py`
-    2. Enter `<digit>.tcp.ngrok.io` for ip and enter `<new_port>` for port
+1. Install Node.js from `https://nodejs.org/en/download`
+2. Go to the UI project folder and install dependencies
+    ```
+    cd chatbot-ui
+    npm install
+    ```
+3. Go back to the root folder. Start the backend. Wait untill you see `Running on http://127.0.0.1:5001`
+    ```
+    python api_server.py
+    ```
+4. On another terminal, go to the UI project folder and start the frontend.
+    ```
+    cd chatbot-ui
+    npm run dev
+    ```
+You will see something like `Local:   http://localhost:5173/`. Copy and paste the url to a browser and you can play with the UI now.
