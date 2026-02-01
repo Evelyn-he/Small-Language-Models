@@ -40,9 +40,8 @@ Currently the second layer filter function uses spacy, to download the required 
     ```
     python api_server.py
     ```
-4. On another terminal, go to the UI project folder and start the frontend.
+4. On another terminal, go to the UI project folder and start the frontend. You will see something like `Local:   http://localhost:5173/` on your terminal. Copy and paste the url to a browser and you can play with the UI now.
     ```
     cd chatbot-ui
     npm run dev
     ```
-You will see something like `Local:   http://localhost:5173/`. Copy and paste the url to a browser and you can play with the UI now.
