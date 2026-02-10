@@ -7,7 +7,7 @@ import json
 from src.confidence_rouge import evaluate_rouge_confidence
 
 OLLAMA_API = "http://localhost:11434/api/generate" # ollama API endpoint
-MODEL = "phi3:3.8b"
+MODEL = "phi3-rag:latest"
 CHAR_DELAY = 0  # delay between characters for printing out AI response
 
 def warmup_model():
@@ -87,7 +87,7 @@ def stream_response(args, messages):
         prompt=prompt,
         original_response=response_text,
         num_samples=2,  # generate 2 additional responses for comparison
-        rouge_threshold=0.25,  # confidence threshold (adjustable)
+        rouge_threshold=0.3,  # confidence threshold (adjustable)
         verbose=args.verbose
     )
     
