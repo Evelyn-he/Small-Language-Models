@@ -18,3 +18,9 @@ rouge-score
 pymongo==4.16.0
 dotenv==0.9.9
 certifi==2026.1.4
+dateparser==1.2.2
+faker==40.1.2
+pandas==3.0.0
+flask==3.0.0
+flask-cors==4.0.0
+python-dotenv==1.0.0
