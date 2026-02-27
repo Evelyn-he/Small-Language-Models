@@ -113,7 +113,8 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
     filtered_input = user_input_filter(user_input)
     filtered_input = entity_recognition_filter(filtered_input)
 
-    print("\nNLP Spacy filtered input: ", filtered_input, "\n")
+    if (args.verbose):
+        print("\n\t[DEBUG] NLP Spacy filtered input: ", filtered_input, "\n")
 
     fallback = should_use_fallback(args, filtered_input)
 
@@ -127,12 +128,6 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
     
     if (args.verbose):
         print(f"\t[DEBUG] User context:\n{query_context}")
-
-    filtered_input = user_input_filter(user_input)
-    filtered_input = entity_recognition_filter(filtered_input)
-
-    if (args.verbose):
-        print("\n\t[DEBUG] NLP Spacy filtered input: ", filtered_input, "\n")
     
     filtered_query_context = user_input_filter(query_context)
 
@@ -180,8 +175,7 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
     if not fallback: #use SLM if confident it can answer
         reply, confidence = stream_response(args, conversation)
 
-    else: #use LLM if not confident SLM can answer
-
+    if (fallback or not confidence): #use LLM if not confident SLM can answer
         if (args.verbose):
             print(f"\t[DEBUG] Filtered input: {filtered_input}")
 
