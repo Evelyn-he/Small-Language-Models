@@ -5,15 +5,10 @@ import os
 import certifi
 from pymongo import MongoClient
 
-<<<<<<< HEAD:main.py
-from slm import warmup_model, stream_response, should_use_fallback
-from llm import llm_response
-=======
 import json
 import datetime
->>>>>>> origin/main:src/main.py
 
-from src.models.slm import warmup_model, stream_response
+from src.models.slm import warmup_model, stream_response, should_use_fallback
 from src.models.llm import llm_response
 
 from src.context_augmentation.context import get_query_context
@@ -133,14 +128,11 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
     if (args.verbose):
         print(f"\t[DEBUG] User context:\n{query_context}")
 
-<<<<<<< HEAD:main.py
-=======
     filtered_input = user_input_filter(user_input)
     filtered_input = entity_recognition_filter(filtered_input)
 
     if (args.verbose):
         print("\n\t[DEBUG] NLP Spacy filtered input: ", filtered_input, "\n")
->>>>>>> origin/main:src/main.py
     
     filtered_query_context = user_input_filter(query_context)
 
