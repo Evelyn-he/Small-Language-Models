@@ -8,7 +8,7 @@ import re
 from src.confidence_rouge import evaluate_rouge_confidence
 
 OLLAMA_API = "http://localhost:11434/api/generate" # ollama API endpoint
-MODEL = "phi3:3.8b"
+MODEL = "phi3-q8_0:latest"
 CHAR_DELAY = 0  # delay between characters for printing out AI response
 
 def warmup_model():
@@ -41,6 +41,9 @@ def stream_response(args, messages):
             "top_k": 1
         }
     }
+
+    if args.verbose:
+        print(f"\t[DEBUG] payload model: {payload['model']}")
 
     response_text = ""
     start_time = time.time()
@@ -103,12 +106,14 @@ def stream_response(args, messages):
 
 def should_use_fallback(args, user_query):
     #currently fall back only if confidence is less than 50%
+
+    print(f"\t[DEBUG] In Fallback checker")
     
     confidence_prompt = f"""
         You: You are a classifier.
 
         Your job is to estimate whether a customer-service AI
-        that DOES have access to customer data, account records,
+        that DOES have access to customer data, account records, product information,
         and company policies would be able to answer the question below.
 
         Do NOT comment on whether YOU personally have access.
@@ -145,7 +150,6 @@ def should_use_fallback(args, user_query):
             
             if args.verbose:
                 print(f"\t[DEBUG] SLM confidence response: {response_text}")
-            print(f"\t[DEBUG] SLM confidence response: {response_text}")
             
             # Extract a number
             find_num = re.search(r"-?\d+(?:\.\d+)?", response_text)
@@ -159,10 +163,9 @@ def should_use_fallback(args, user_query):
                     
                     if args.verbose:
                         print(f"\t[DEBUG] Parsed confidence score: {confidence}")
-                    print(f"\t[DEBUG] Parsed confidence score: {confidence}")
 
                     # If confidence > 0.5, use fallback (LLM)
-                    fallback = confidence <= 0.5
+                    fallback = confidence <= 0.25
                     return fallback
                 except ValueError:
                     if args.verbose:
@@ -170,12 +173,12 @@ def should_use_fallback(args, user_query):
             
             # If no valid number found, default to False (use SLM)
             if args.verbose:
-                print(f"\t[DEBUG] No valid confidence number found in response")
+                print(f"\t[DEBUG] No valid confidence number found in response, default to SLM")
             return False
             
     except Exception as e:
         if args.verbose:
-            print(f"\t[DEBUG] Error in confidence check: {e}")
+            print(f"\t[DEBUG] Error in confidence check: {e}, default to SLM")
         # Default to False (use SLM) if there's an error
         return False
     
