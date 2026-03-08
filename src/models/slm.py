@@ -9,6 +9,7 @@ from src.confidence_rouge import evaluate_rouge_confidence
 
 OLLAMA_API = "http://localhost:11434/api/generate" # ollama API endpoint
 MODEL = "phi3-q8_0:latest"
+MODEL_FALLBACK = "phi3:3.8b"
 CHAR_DELAY = 0  # delay between characters for printing out AI response
 
 def warmup_model():
@@ -110,18 +111,50 @@ def should_use_fallback(args, user_query):
     print(f"\t[DEBUG] In Fallback checker")
     
     confidence_prompt = f"""
-        You: You are a classifier.
+        You are estimating the probability that a SMALL e-commerce
+        customer-service model (SLM) could answer a user question.
 
-        Your job is to estimate whether a customer-service AI
-        that DOES have access to customer data, account records, product information,
-        and company policies would be able to answer the question below.
+        The model is specifically trained for e-commerce support.
 
-        Do NOT comment on whether YOU personally have access.
+        It is good at:
+        - answering questions about orders, shipping, returns, refunds, and accounts
+        - looking up information from orders, products, FAQs, and store policies
+        - combining a few simple facts
+        - following basic business rules
 
-        Output a single number between 0 and 1:
+        Most normal customer-service questions should receive HIGH probability.
 
-        1 = fully answerable by such a system  
-        0 = not answerable even with full access  
+        Limitations:
+        - cannot perform deep reasoning or complex multi-step analysis
+        - cannot answer philosophical, legal, or opinion-based questions
+        - may struggle with extremely ambiguous or unrelated requests
+
+        Your task:
+        Estimate the probability (0-1) that this model would likely produce
+        a helpful answer to the question.
+
+        Calibration examples:
+
+        Question: Where is my order?
+        Answer: 0.92
+
+        Question: How do I return an item I bought last week?
+        Answer: 0.90
+
+        Question: What is the warranty on this product?
+        Answer: 0.88
+
+        Question: Why do humans value material possessions?
+        Answer: 0.14
+
+        Question: If shipping delays increase by 15% next year, how will that affect market demand?
+        Answer: 0.18
+
+        Rules:
+        - Output ONLY a decimal number
+        - Format: 0.xx
+        - Exactly two decimal places
+        - Do not output 0.00, 0.25, 0.50, 0.75, or 1.00
 
         Question:
         {user_query}
@@ -130,13 +163,13 @@ def should_use_fallback(args, user_query):
         AI: """
 
     payload = {
-        "model": MODEL,
+        "model": MODEL_FALLBACK,
         "prompt": confidence_prompt,
         "stream": False,  # Don't stream 
         "options": {
             "num_predict": 20,  # Short response, just a number
             "stop": ["\n\n", "You:"], 
-            "temperature": 0.3  # Lower temp -> deterministic response
+            "temperature": 0.6  # Lower temp -> deterministic response
         }
     }
     
