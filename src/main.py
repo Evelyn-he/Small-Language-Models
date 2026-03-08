@@ -128,6 +128,10 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
     
     if (args.verbose):
         print(f"\t[DEBUG] User context:\n{query_context}")
+
+
+    if (args.verbose):
+        print("\n\t[DEBUG] NLP Spacy filtered input: ", filtered_input, "\n")
     
     filtered_query_context = user_input_filter(query_context)
 
