@@ -12,9 +12,9 @@ import os
 CONFIG
 """
 
-CSV_PATH = "../data/business_data.csv"
+CSV_PATH = "../data/updated_customer_data.csv"
 DB_NAME = "slm-capstone-proj"
-COLLECTION_NAME = "products"
+COLLECTION_NAME = "purchases" 
 
 """
 CONNECT TO DATABASE
@@ -28,8 +28,9 @@ collection = db[COLLECTION_NAME]
 """
 LOAD CSV
 """
-df = pd.read_csv(CSV_PATH)
+df = pd.read_csv(CSV_PATH)  # Use pipe separator
 df = df.dropna(subset=["Title"])
+df = df.head(75000)  # Take only first 75,000 rows
 
 
 documents = []
@@ -37,10 +38,14 @@ documents = []
 for _, row in df.iterrows():
     try:
         doc = {
+            "TrackingNumber": str(row["TrackingNumber"]),
             "StockCode": str(row["StockCode"]),
             "Title": row["Title"].strip(),
+            "Quantity": int(row["Quantity"]),
+            "DeliveryDate": parser.parse(row["DeliveryDate"]),
             "UnitPrice": float(row["UnitPrice"]),
-            "StockQuantity": int(row["StockQuantity"]),
+            "CustomerID": int(row["CustomerID"]) if pd.notna(row["CustomerID"]) else None,
+            "Address": row["Address"].strip()
         }
         documents.append(doc)
     except Exception as e:
@@ -49,6 +54,7 @@ for _, row in df.iterrows():
 """
 INSERT INTO MONGODB
 """
+collection.drop()
 if documents:
     collection.insert_many(documents)
     print(f"Inserted {len(documents)} documents.")

@@ -2,6 +2,18 @@
 
 ** See the end of the README for an overall structure of where all the files are placed.
 
+## Set up CCDB account and remote ssh
+
+1. Login to `https://ccdb.alliancecan.ca/`
+
+2. In Powershell on your machine, create a ssh key and copy the public key to `https://ccdb.alliancecan.ca/ssh_authorized_keys`
+
+3. Go to `https://ccdb.alliancecan.ca/multi_factor_authentications` and enable mfa on your phone (duo)
+
+4. For whatever clusters you want to login to, agree to their terms of use here: `https://ccdb.alliancecan.ca/me/access_systems`
+
+5. In Powershell, `ssh username@cluster.computecanada.ca` to login (i.e. `ssh ehe@narval.computecanada.ca`). Enter `1` when prompted for two-factor authentication, then check the Duo app to accept.
+
 ## Set up Environment on CCDB
 
 1. Create a virtual environment using `venv`. 
@@ -103,9 +115,9 @@ As mentioned before, the model is fine-tuned in hugging-face format. Now we need
     - Full precision: `f16`, `f32`
     - Reduced precision: `q8_0`, `q4_K_M`       <-- More speed up & smaller model size
 
-3. Save the `.gguf` file to your local computer
+3. Save the `.gguf` file to your local computer by running the following command locally:
     ```
-    scp <username>@<network>.computecanada.ca:/home/ehe/scratch/phi3-q3_0.gguf .
+    scp <username>@<network>.computecanada.ca:/home/ehe/scratch/phi3-q8_0.gguf .
     ```
 
 4. Create the ollama model using a `Modelfile`. An example file is included in this directory.
