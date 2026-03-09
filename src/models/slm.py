@@ -8,7 +8,7 @@ import re
 from src.confidence_rouge import evaluate_rouge_confidence
 
 OLLAMA_API = "http://localhost:11434/api/generate" # ollama API endpoint
-MODEL = "phi3-q8_0:latest"
+MODEL = "phi3-new:latest"
 CHAR_DELAY = 0  # delay between characters for printing out AI response
 
 def warmup_model():
