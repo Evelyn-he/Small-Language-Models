@@ -176,8 +176,9 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
 
     print("AI: ", end="", flush=True)
 
-    if not fallback: #use SLM if confident it can answer
-        reply, confidence = stream_response(args, conversation)
+    #if not fallback: #use SLM if confident it can answer
+    #TODO: Put back in if statement
+    reply, confidence = stream_response(args, conversation)
 
     if (fallback or not confidence): #use LLM if not confident SLM can answer
         if (args.verbose):
