@@ -99,6 +99,9 @@ def run_batch(questions_path: str, user_id: int, output_path: str):
         context_time = find_first(
             r"Context Retrieval Time:\s*([0-9.\-eE]+)", log, cast=float, default=None
         )
+        self_prompted_confidence_latency = find_first(
+            r"Self-prompted confidence latency:\s*([0-9.\-eE]+)", log, cast=float, default=None
+        )
 
         # Threshold checks (0.25)
         threshold = 0.25
@@ -120,6 +123,7 @@ def run_batch(questions_path: str, user_id: int, output_path: str):
                 "total_time_sec": total_time,
                 "routing_time_sec": routing_time,
                 "context_retrieval_time_sec": context_time,
+                "self_prompted_confidence_latency_sec": self_prompted_confidence_latency,
                 "slm_response_time_sec": slm_response_time,
                 "confidence_eval_time_sec": conf_eval_time,
                 "llm_response_time_sec": llm_response_time,
