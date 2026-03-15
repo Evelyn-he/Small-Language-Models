@@ -45,3 +45,9 @@ Currently the second layer filter function uses spacy, to download the required 
     cd chatbot-ui
     npm run dev
     ```
+
+## To Run tests
+1. Fill out the questions.txt with the questions you want to ask, one question per line
+2. Run the batch_eval using `python tests/batch_eval.py`
+3. Once finished you can upload the .csv file to google drive and open it in google sheets
+Currently in the tests folder inside our capstone folder is a template formated testing google sheets that you can paste AS VALUES into to format your data nicer.
