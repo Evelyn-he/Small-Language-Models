@@ -8,8 +8,7 @@ from pymongo import MongoClient
 import json
 import datetime
 
-from src.models.slm import warmup_model, stream_response
-from src.self_prompted_confidence import self_prompted_confidence
+from src.models.slm import warmup_model, stream_response, should_use_fallback
 from src.models.llm import llm_response
 
 from src.context_augmentation.context import get_query_context
@@ -118,7 +117,8 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
         print("\n\t[DEBUG] NLP Spacy filtered input: ", filtered_input, "\n")
         start_self_prompted_confidence_time = time.time()
 
-    fallback = self_prompted_confidence(args, filtered_input)
+    fallback = should_use_fallback(args, filtered_input)
+
     if (args.verbose):
         end_self_prompted_confidence_time = time.time()
         print("\t[DEBUG] Self-prompted confidence latency: ", end_self_prompted_confidence_time - start_self_prompted_confidence_time)
