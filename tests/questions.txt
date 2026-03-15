@@ -1,64 +1,10 @@
-What is your return policy?
-Does your store ship to Canada?
-How do I cancel an order?
-How do I track my order?
-Can I return a product?
-What is your gift card policy?
-How long do I have to be able to return my order?
-Which countries does your company ship to?
-What methods of payment do you accept?
-Can I order a product if it's listed as sold out?
-Can I return a product that I bought during a promotional event?
-Can I order a product as a gift?
-Do you offer discounts on bulk purchases?
-Can I order a product listed as "backordered"?
-Can I return a product if I don't have it in its packaging anymore?
-Do you have a loyalty program that I can join?
-Is my personal information and details secure?
-What do I do if my package is lost?
-What do I do if my package is damaged?
-How long does it take your company to ship a package?
-How do I create an account with your company?
-Does your company offer international shipping?
-How can I cancel my order?
-It's been 20 days since I bought a product. Can I still return it?
-It's been 40 days since I bought a product. Can I still return it?
-How much does a thyme herb marker cost?
-How many thyme herb markers do you have in stock?
-What's the stock code of a thyme herb marker?
-What's the difference between the pink and green jam jar lids?
-How much does a pink jam jar lid cost?
-How many pink jam jar lids do you have in stock?
-What types of jewellery drawers do you offer?
-How much does a Parisienne jewellery drawer cost?
-How many Parisienne jewellery drawers are in stock?
-What types of birthday cards do you carry?
-What is the cheapest birthday card you carry?
-How much does a cowboy birthday card cost?
-What sizes of bell jars do you carry?
-How much does a lantern cream gazebo cost?
-How many lantern cream gazebos do you have in stock?
-What types of doormats can I buy?
-How much does a cat and tree card cost?
-How much does a utility cabinet cost?
-Do you have any school desks in stock?
-Do you have any nail clippers in stock?
-Do you carry any laptops?
-Do you carry any calculators?
-How much does a calculator cost?
-What's the stock code of a wicker star?
-How many wicker stars do you have in stock?
-How much did my latest order cost?
-Has my latest order been shipped?
-Where was my latest order delivered?
-What items were in my latest order?
-What's the tracking number on my latest order?
-What types of antiques have I bought before?
-What's the last time I bought an antique?
-How much have I spent on antiques in total?
-How many antiques have I bought before?
-What types of water bottles have I bought before?
-When's the last time I bought a hand warmer?
-What types of hand warmers have I bought?
-How much have I spent in total on hand warmers?
-How many union jack handwarmers have I bought before?
+Did I ever get the white heart holder?
+How many retro coffee mugs did I buy?
+What was the cost of the knitted union flag bottle?
+Did I ever cancel or return anything?
+How many babushka box sets did I get?
+Did I get the red parasol?
+Have I ever ordered more than 10 of the same item in one order?
+How many orders do I have that haven't been delivered yet?
+Have I ever ordered the red Woolly Hottie, and would it make sense for me to get one now?
+What was my most recent order?
