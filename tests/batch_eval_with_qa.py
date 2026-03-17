@@ -323,6 +323,9 @@ def run_batch_with_qa(
         context_time = find_first(
             r"Context Retrieval Time:\s*([0-9.\-eE]+)", log, cast=float, default=None
         )
+        privacy_filtering_time = find_first(
+            r"Privacy Filtering time:\s*([0-9.\-eE]+)", log, cast=float, default=None
+        )
         self_prompted_confidence_latency = find_first(
             r"Self-prompted confidence latency:\s*([0-9.\-eE]+)", log, cast=float, default=None
         )
@@ -350,6 +353,7 @@ def run_batch_with_qa(
                 "passes_cosine_threshold": passes_cosine,
                 "correct": correct,
                 "total_time_sec": total_time,
+                "privacy_filtering_time_sec": privacy_filtering_time,
                 "routing_time_sec": routing_time,
                 "context_retrieval_time_sec": context_time,
                 "self_prompted_confidence_latency_sec": self_prompted_confidence_latency,

@@ -111,8 +111,17 @@ def log_sft_example(prompt, answer, route=None, path="data/rag_sft.jsonl"):
 def process_message(user_id, user_input, args, conversation, filtered_convo, retrievers, router):
 
     #Filtering Stage
+    if (args.verbose):
+        print("\t[DEBUG] Filtering stage started")
+        filter_time = time.time()
+
     filtered_input = user_input_filter(user_input)
     filtered_input = entity_recognition_filter(filtered_input)
+
+    if (args.verbose):
+        end_filter_time = time.time()
+        print("\t[DEBUG] Privacy Filtering time: ", end_filter_time - filter_time)
+
 
     if (args.verbose):
         print("\n\t[DEBUG] NLP Spacy filtered input: ", filtered_input, "\n")
