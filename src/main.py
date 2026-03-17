@@ -10,7 +10,7 @@ import datetime
 
 from src.models.slm import warmup_model, stream_response
 from src.models.llm import llm_response
-from src.self_prompted_confidence import should_use_fallback
+from src.self_prompted_confidence import self_prompted_confidence
 
 from src.context_augmentation.context import get_query_context
 from src.context_augmentation.routing import Router
@@ -82,7 +82,6 @@ def user_input_filter(user_input):
 
     return filtered_user_input
 
-
 def entity_recognition_filter(user_input):
     #python -m spacy download en_core_web_sm
     nlp = spacy.load("en_core_web_sm")
@@ -111,6 +110,7 @@ def log_sft_example(prompt, answer, route=None, path="data/rag_sft.jsonl"):
 
 def process_message(user_id, user_input, args, conversation, filtered_convo, retrievers, router):
 
+    #Filtering Stage
     filtered_input = user_input_filter(user_input)
     filtered_input = entity_recognition_filter(filtered_input)
 
@@ -118,12 +118,14 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
         print("\n\t[DEBUG] NLP Spacy filtered input: ", filtered_input, "\n")
         start_self_prompted_confidence_time = time.time()
 
-    fallback = should_use_fallback(args, filtered_input)
+    #Self-prompted Confidence Stage
+    slm_confident = self_prompted_confidence(args, filtered_input)
 
     if (args.verbose):
         end_self_prompted_confidence_time = time.time()
         print("\t[DEBUG] Self-prompted confidence latency: ", end_self_prompted_confidence_time - start_self_prompted_confidence_time)
 
+    #Context Retrieval Stage
     query_context = get_query_context(
         args=args,
         user_id=user_id,
@@ -134,10 +136,6 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
     
     if (args.verbose):
         print(f"\t[DEBUG] User context:\n{query_context}")
-
-
-    if (args.verbose):
-        print("\n\t[DEBUG] NLP Spacy filtered input: ", filtered_input, "\n")
     
     filtered_query_context = user_input_filter(query_context)
 
@@ -182,11 +180,10 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
 
     print("AI: ", end="", flush=True)
 
-    #if not fallback: #use SLM if confident it can answer
-    #TODO: Put back in if statement
-    reply, confidence = stream_response(args, conversation)
+    if slm_confident: #use SLM if confident it can answer
+        reply, confidence = stream_response(args, conversation)
 
-    if (fallback or not confidence): #use LLM if not confident SLM can answer
+    else: #use LLM if not confident SLM can answer
         if (args.verbose):
             print(f"\t[DEBUG] Filtered input: {filtered_input}")
 

@@ -81,25 +81,26 @@ def stream_response(args, messages):
     if args.verbose:
         print("\t[DEBUG] SLM response time: ", end_time - start_time)
 
-
-    start_time = time.time()
+    #Rouge Confidence Evaluation Stage
+    # start_time = time.time()
     
-    # confidence = evaluate_confidence(prompt, response_text)
+    # # confidence = evaluate_confidence(prompt, response_text)
 
-    confidence = evaluate_rouge_confidence(
-        model=MODEL,
-        prompt=prompt,
-        original_response=response_text,
-        num_samples=2,  # generate 2 additional responses for comparison
-        rouge_threshold=0.25,  # confidence threshold (adjustable)
-        verbose=args.verbose
-    )
+    # confidence = evaluate_rouge_confidence(
+    #     model=MODEL,
+    #     prompt=prompt,
+    #     original_response=response_text,
+    #     num_samples=2,  # generate 2 additional responses for comparison
+    #     rouge_threshold=0.25,  # confidence threshold (adjustable)
+    #     verbose=args.verbose
+    # )
     
-    if not confidence:
-        print("*** SLM is not confident ***")
-    end_time = time.time()
+    # if not confidence:
+    #     print("*** SLM is not confident ***")
+    # end_time = time.time()
 
-    if args.verbose:
-        print("\t[DEBUG] Confidence evaluation time: ", end_time - start_time)
+    # if args.verbose:
+    #     print("\t[DEBUG] Rouge Confidence evaluation time: ", end_time - start_time)
 
-    return response_text, confidence
+    #return response_text, confidence #only if using rouge confidence
+    return response_text, True

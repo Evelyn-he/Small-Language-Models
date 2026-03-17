@@ -4,7 +4,7 @@ import requests
 from src.models.slm import OLLAMA_API, MODEL_FALLBACK
 
 
-def should_use_fallback(args, user_query: str) -> bool:
+def self_prompted_confidence(args, user_query: str) -> bool:
     print(f"\t[DEBUG] In Fallback checker")
 
     confidence_prompt = f"""
@@ -24,7 +24,7 @@ def should_use_fallback(args, user_query: str) -> bool:
         - applying basic business rules
 
         Most normal customer-service questions involving orders, shipping,
-        deliveries (where, when), products, inventory (stock, have), orders(how many, when), accounts, or store policies should
+        deliveries (where, when), products, inventory (stock, have), orders(how many did I get, when), accounts, or store policies should
         receive HIGH probability.
 
         Limitations:
@@ -107,8 +107,10 @@ def should_use_fallback(args, user_query: str) -> bool:
                     if args.verbose:
                         print(f"\t[DEBUG] Parsed confidence score: {confidence}")
 
-                    fallback = confidence <= 0.25
-                    return fallback
+                    confident = confidence > 0.25
+                    if not confident:
+                        print("*** SLM is not confident ***")
+                    return confident
                 except ValueError:
                     if args.verbose:
                         print(f"\t[DEBUG] Could not parse number: {find_num}")
@@ -117,12 +119,14 @@ def should_use_fallback(args, user_query: str) -> bool:
                 print(
                     f"\t[DEBUG] No valid confidence number found in response, default to SLM"
                 )
-            return False
+                #default to true (confident) if no valid confidence number found
+            return True
 
     except Exception as e:
         if args.verbose:
             print(f"\t[DEBUG] Error in confidence check: {e}, default to SLM")
-        return False
+        return True
 
-    return False
+    #Default to confident
+    return True
 
