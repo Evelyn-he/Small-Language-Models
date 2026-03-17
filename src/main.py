@@ -8,8 +8,9 @@ from pymongo import MongoClient
 import json
 import datetime
 
-from src.models.slm import warmup_model, stream_response, should_use_fallback
+from src.models.slm import warmup_model, stream_response
 from src.models.llm import llm_response
+from src.self_prompted_confidence import should_use_fallback
 
 from src.context_augmentation.context import get_query_context
 from src.context_augmentation.routing import Router
