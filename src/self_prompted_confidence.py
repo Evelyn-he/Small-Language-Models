@@ -8,72 +8,95 @@ def self_prompted_confidence(args, user_query: str) -> bool:
     print(f"\t[DEBUG] In Fallback checker")
 
     confidence_prompt = f"""
-        You are estimating the probability that a SMALL e-commerce
-        customer-service model (SLM) could answer a user question.
+    You are estimating the probability that a SMALL e-commerce
+    customer-service model (SLM) could answer a user question.
 
-        The model is specifically trained for e-commerce support.
+    The model is specifically trained for e-commerce support.
 
-        It is good at:
-        - answering typical e-commerce customer service questions
-        - retrieving information from store systems such as orders, shipments, products, inventory, accounts, FAQs, and policies
-        - looking up customer-specific order history like whether an item was ordered, how many was ordered, the delivery info of orders
-        - checking delivery or shipment status, order status, delivery address, delivery date
-        - checking product availability or stock levels
-        - retrieving store policies or FAQ information
-        - combining a few simple facts from store records
-        - applying basic business rules
+    It is good at:
+    - answering typical e-commerce customer service questions
+    - retrieving information from store systems such as orders, shipments, products, inventory, accounts, FAQs, and policies
+    - looking up customer-specific order history (e.g., whether an item was ordered, quantity purchased, order timing, or price at time of purchase)
+    - checking delivery or shipment details (e.g., delivery status, delivery date, delivery location, or shipping destination)
+    - checking product availability or stock levels
+    - retrieving store policies or FAQ information
+    - retrieving and combining a few fields from structured store records (e.g., item, date, location, status, price, quantity)
+    - answering questions that require simple lookups across orders, deliveries, inventory, or policies
+    - applying basic business rules
 
-        Most normal customer-service questions involving orders, shipping,
-        deliveries (where, when), products, inventory (stock, have), orders(how many did I get, when), accounts, or store policies should
-        receive HIGH probability.
+    Most normal customer-service questions involving orders, shipping,
+    deliveries (status, time, or location), products, inventory (availability or quantity),
+    order history (quantity, timing, or price), accounts, or store policies
+    should receive HIGH probability.
 
-        Limitations:
-        - cannot perform deep reasoning or complex multi-step analysis
-        - cannot answer philosophical, speculative, or opinion-based questions
-        - may struggle with highly ambiguous or unrelated requests
+    If the answer can be found by retrieving information from store data
+    (orders, shipments, inventory, or policies), the probability should
+    usually be above 0.85.
 
-        Your task:
-        Estimate the probability (0-1) that this model would likely produce
-        a helpful answer to the question.
+    Limitations:
+    - cannot perform deep reasoning or complex multi-step analysis
+    - cannot answer philosophical, speculative, or opinion-based questions
+    - may struggle with highly ambiguous or unrelated requests
 
-        Calibration examples:
+    Note:
+    Questions that involve checking order details (such as what, when, where,
+    how many, how much, or status) are NOT considered complex reasoning,
+    even if multiple pieces of information are involved.
 
-        Question: Where is my order?
-        Answer: 0.92
+    Your task:
+    Estimate the probability (0-1) that this model would likely produce
+    a helpful answer to the question.
 
-        Question: How do I return an item I bought last week?
-        Answer: 0.90
+    Calibration examples:
 
-        Question: How many of [product name] did I order?
-        Answer: 0.78
+    Question: Where is my order?
+    Answer: 0.92
 
-        Question: Where was my [product name] sent?
-        Answer: 0.78
+    Question: How do I return an item I bought last week?
+    Answer: 0.90
 
-        Question: Did my [product name] arrive yet?
-        Answer: 0.70
+    Question: What is the warranty on this product?
+    Answer: 0.88
 
-        Question: What is the warranty on this product?
-        Answer: 0.88
+    Question: Did I order this item before?
+    Answer: 0.90
 
-        Question: Why do humans value material possessions?
-        Answer: 0.14
+    Question: Where was this item delivered?
+    Answer: 0.90
 
-        Question: If shipping delays increase by 15% next year, how will that affect market demand?
-        Answer: 0.18
+    Question: Has this item been delivered yet?
+    Answer: 0.88
 
-        Rules:
-        - Output ONLY a decimal number
-        - Format: 0.xx
-        - Exactly two decimal places
-        - Do not output 0.00, 0.25, 0.50, 0.75, or 1.00
+    Question: When did this order arrive?
+    Answer: 0.91
 
-        Question:
-        {user_query}
+    Question: What was the price of this item when I bought it?
+    Answer: 0.90
 
-        Answer with only the number.
-        AI:
-        """
+    Question: Is this item in stock?
+    Answer: 0.92
+
+    Question: Do you ship internationally?
+    Answer: 0.91
+
+    Question: Why do humans value material possessions?
+    Answer: 0.14
+
+    Question: If shipping delays increase by 15% next year, how will that affect market demand?
+    Answer: 0.18
+
+    Rules:
+    - Output ONLY a decimal number
+    - Format: 0.xx
+    - Exactly two decimal places
+    - Do not output 0.00, 0.25, 0.50, 0.75, or 1.00
+
+    Question:
+    {user_query}
+
+    Answer with only the number.
+    AI:
+    """
 
     payload = {
         "model": MODEL_FALLBACK,
