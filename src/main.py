@@ -87,7 +87,7 @@ def entity_recognition_filter(user_input):
     nlp = spacy.load("en_core_web_sm")
     inputs = nlp(user_input)
     for ent in inputs.ents:
-        if ent.label_ in {"PERSON", "GPE", "LOC", "ORG"}:
+        if ent.label_ in {"GPE", "LOC"}:
             user_input = user_input.replace(ent.text,f"[REDACTED {ent.label_}]")
     #print("\nNLP Spacy filtered input: ", user_input, "\n")
     return user_input

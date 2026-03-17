@@ -48,6 +48,24 @@ def load_questions(path: str):
     return questions
 
 
+def load_user_ids(path: str, n_questions: int) -> list[int]:
+    """Load one integer user_id per non-empty line; must match number of questions."""
+    user_ids: list[int] = []
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            raw = line.strip()
+            if not raw or raw.startswith("#"):
+                continue
+            user_ids.append(int(raw))
+
+    if len(user_ids) != n_questions:
+        raise ValueError(
+            f"user_ids count ({len(user_ids)}) does not match questions count ({n_questions}). "
+            f"File: {path}"
+        )
+    return user_ids
+
+
 def load_question_answers(path: str, questions: list[str] | None = None):
     """
     Load reference answers from question_answers.txt.
@@ -203,14 +221,19 @@ def run_batch_with_qa(
     question_answers_path: str,
     question_answers_req_span_path: str,
     user_id: int,
+    user_ids_path: str | None,
     output_path: str,
     cosine_threshold: float = 0.75,
 ):
     args = SimpleNamespace(verbose=True, generate_data=False)
-    retrievers, router = create_user_session(args, user_id)
 
     questions = load_questions(questions_path)
     print(f"Loaded {len(questions)} questions from {questions_path}")
+
+    user_ids_by_index: list[int] | None = None
+    if user_ids_path:
+        user_ids_by_index = load_user_ids(user_ids_path, len(questions))
+        print(f"Loaded {len(user_ids_by_index)} user_ids from {user_ids_path}")
 
     qa_data = load_question_answers(question_answers_path, questions)
     if isinstance(qa_data, dict):
@@ -225,18 +248,28 @@ def run_batch_with_qa(
     print(f"Loaded required spans for {len(questions)} questions ({n_with_spans} with non-empty spans) from {question_answers_req_span_path}")
 
     results = []
+    sessions: dict[int, tuple[object, object]] = {}
 
     for idx, question in enumerate(questions, start=1):
+        row_user_id = (
+            user_ids_by_index[idx - 1] if user_ids_by_index is not None else user_id
+        )
         print(f"Running question {idx}/{len(questions)}: {question}")
 
         conversation = []
         filtered_convo = []
 
+        # Cache sessions per user_id so mixed-user batches are efficient
+        # (create_user_session is relatively expensive)
+        if row_user_id not in sessions:
+            sessions[row_user_id] = create_user_session(args, row_user_id)
+        retrievers, router = sessions[row_user_id]
+
         buf = io.StringIO()
         start_total = time.time()
         with redirect_stdout(buf):
             reply = process_message(
-                user_id=user_id,
+                user_id=row_user_id,
                 user_input=question,
                 args=args,
                 conversation=conversation,
@@ -305,7 +338,7 @@ def run_batch_with_qa(
 
         results.append(
             {
-                "user_id": user_id,
+                "user_id": row_user_id,
                 "question": question,
                 "answer": reply,
                 "reference_answer": reference_answer,
@@ -345,6 +378,7 @@ if __name__ == "__main__":
         question_answers_path=str(base_dir / "question_answers.txt"),
         question_answers_req_span_path=str(base_dir / "question_answers_req_span.txt"),
         user_id=17850,
+        user_ids_path=str(base_dir / "user_ids.txt"),
         output_path=str(base_dir / "batch_results_with_qa.csv"),
         cosine_threshold=0.75,
     )

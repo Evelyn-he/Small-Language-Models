@@ -117,17 +117,23 @@ def should_use_fallback(args, user_query):
         The model is specifically trained for e-commerce support.
 
         It is good at:
-        - answering questions about orders, shipping, returns, refunds, and accounts
-        - looking up information from orders, products, FAQs, and store policies
-        - combining a few simple facts
-        - following basic business rules
+        - answering typical e-commerce customer service questions
+        - retrieving information from store systems such as orders, shipments, products, inventory, accounts, FAQs, and policies
+        - looking up customer-specific order history like whether an item was ordered, how many was ordered, the delivery info of orders
+        - checking delivery or shipment status, order status, delivery address, delivery date
+        - checking product availability or stock levels
+        - retrieving store policies or FAQ information
+        - combining a few simple facts from store records
+        - applying basic business rules
 
-        Most normal customer-service questions should receive HIGH probability.
+        Most normal customer-service questions involving orders, shipping,
+        deliveries (where, when), products, inventory (stock, have), orders(how many, when), accounts, or store policies should
+        receive HIGH probability.
 
         Limitations:
         - cannot perform deep reasoning or complex multi-step analysis
-        - cannot answer philosophical, legal, or opinion-based questions
-        - may struggle with extremely ambiguous or unrelated requests
+        - cannot answer philosophical, speculative, or opinion-based questions
+        - may struggle with highly ambiguous or unrelated requests
 
         Your task:
         Estimate the probability (0-1) that this model would likely produce
@@ -160,7 +166,8 @@ def should_use_fallback(args, user_query):
         {user_query}
 
         Answer with only the number.
-        AI: """
+        AI:
+        """
 
     payload = {
         "model": MODEL_FALLBACK,
