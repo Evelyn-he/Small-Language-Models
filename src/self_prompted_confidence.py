@@ -37,6 +37,7 @@ def self_prompted_confidence(args, user_query: str) -> bool:
     - cannot perform deep reasoning or complex multi-step analysis
     - cannot answer philosophical, speculative, or opinion-based questions
     - may struggle with highly ambiguous or unrelated requests
+    - may struggle with opinionated questions such as recommendations or inferences
 
     Note:
     Questions that involve checking order details (such as what, when, where,

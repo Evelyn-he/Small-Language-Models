@@ -2,18 +2,18 @@ Yes, 122
 4.95
 Yes
 96
-097 Kathryn Trail 
+097 Kathryn Trail
 Yes
 108
-Yes,
+Yes
 
 
 Yes, 32
-12
+$12.00
 1.65
 Yes
 30
-86364 Kyle Tunnel 
+86364 Kyle Tunnel
 Yes
 4.95
 
@@ -29,27 +29,27 @@ No
 
 
 Yes
-20
+$20.00
 0.85
 636.73
-4328 Herrera Coves 
+4328 Herrera Coves
 580257
 Yes
 160
 
 
 Yes
-26
+$26.00
 12.75
 Yes
 0
-85861 Gray Tunnel 
+85861 Gray Tunnel
 Yes
 18
 
 
 46
-2.96
+$2.96
 yes
 146
 0.85
@@ -80,7 +80,7 @@ Yes
 Yes
 Contact customer support
 Contact customer support
-phone,email,live chat
+phone, email, live chat
 Yes, additional fee
 Yes, 30
 30
@@ -91,8 +91,8 @@ Yes
 Yes
 Yes
 Contact customer support
-No | Only one
-standard | expedited
+No|Only one
+standard|expedited
 
 
 

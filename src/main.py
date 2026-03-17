@@ -110,25 +110,12 @@ def log_sft_example(prompt, answer, route=None, path="data/rag_sft.jsonl"):
 
 def process_message(user_id, user_input, args, conversation, filtered_convo, retrievers, router):
 
-    #Filtering Stage
-    if (args.verbose):
-        print("\t[DEBUG] Filtering stage started")
-        filter_time = time.time()
-
-    filtered_input = user_input_filter(user_input)
-    filtered_input = entity_recognition_filter(filtered_input)
 
     if (args.verbose):
-        end_filter_time = time.time()
-        print("\t[DEBUG] Privacy Filtering time: ", end_filter_time - filter_time)
-
-
-    if (args.verbose):
-        print("\n\t[DEBUG] NLP Spacy filtered input: ", filtered_input, "\n")
         start_self_prompted_confidence_time = time.time()
 
     #Self-prompted Confidence Stage
-    slm_confident = self_prompted_confidence(args, filtered_input)
+    slm_confident = self_prompted_confidence(args, user_input)
 
     if (args.verbose):
         end_self_prompted_confidence_time = time.time()
@@ -163,11 +150,6 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
         question=user_input.strip()
     )
 
-    filtered_prompt = prompt_template.format(
-        context=filtered_query_context.strip() if filtered_query_context else "No relevant information available.",
-        question=filtered_input.strip()
-    )
-
     # conversation.append({
     #     "role": "user",
     #     "content": f"Answer question as a customer agent based on the relavant user context (do not provide unnecessary details). If you're unsure, say you're unsure. Negative quantities are returns. User input: {user_input} (User context:\n {query_context})\n"
@@ -182,17 +164,35 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
         "content": user_prompt
     })
 
-    filtered_convo.append({
-        "role": "user",
-        "content": filtered_prompt
-    })
-
     print("AI: ", end="", flush=True)
 
     if slm_confident: #use SLM if confident it can answer
         reply, confidence = stream_response(args, conversation)
 
     else: #use LLM if not confident SLM can answer
+        #Filtering Stage
+        if (args.verbose):
+            print("\t[DEBUG] Filtering stage started")
+            filter_time = time.time()
+
+        filtered_input = user_input_filter(user_input)
+        filtered_input = entity_recognition_filter(filtered_input)
+
+        if (args.verbose):
+            end_filter_time = time.time()
+            print("\t[DEBUG] Privacy Filtering time: ", end_filter_time - filter_time)
+
+
+        filtered_prompt = prompt_template.format(
+            context=filtered_query_context.strip() if filtered_query_context else "No relevant information available.",
+            question=filtered_input.strip()
+        )
+
+        filtered_convo.append({
+            "role": "user",
+            "content": filtered_prompt
+        })
+    
         if (args.verbose):
             print(f"\t[DEBUG] Filtered input: {filtered_input}")
 
