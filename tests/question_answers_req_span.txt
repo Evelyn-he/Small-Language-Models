@@ -9,43 +9,43 @@ Yes
 
 
 Yes, 32
-$12.00
+6
 1.65
 Yes
-30
-86364 Kyle Tunnel
-Yes
-4.95
+6
+0324 Fernandez Causeway
+no
+1.69
 
 
-Yes, 82
-Yes, 102
+Yes, 36
+16
 1.65
-Yes
-41705 Kevin Garden
+no
+95017 Javier Shores
 108
 No
 4.15
 
 
 Yes
-$20.00
+10
 0.85
-636.73
-4328 Herrera Coves
-580257
-Yes
-160
+302.22
+122 Kristen Spur
+541429
+No
+10
 
 
 Yes
-$26.00
+13
 12.75
 Yes
-0
-85861 Gray Tunnel
+24
+85861 Gray Tunnel|540161
 Yes
-18
+8
 
 
 46
@@ -65,9 +65,9 @@ yes
 large, small
 yes
 65
+4.95
 yes
-yes
-16
+34
 
 
 

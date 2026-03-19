@@ -166,6 +166,7 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
 
     print("AI: ", end="", flush=True)
 
+    #slm_confident = True #default to false (not confident)
     if slm_confident: #use SLM if confident it can answer
         reply, confidence = stream_response(args, conversation)
 
