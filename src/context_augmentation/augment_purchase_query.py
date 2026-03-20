@@ -24,6 +24,7 @@ class PurchaseRetriever:
                     "stock_code": {"$first": "$StockCode"},  # Get one stock code (should be same for same title)
                     "most_recent_order": {"$first": "$OrderDate"},  # Most recent order (first after sort)
                     "most_recent_tracking_number": {"$first": "$TrackingNumber"},  # Tracking number of most recent order
+                    "unit_price": {"$first": "$UnitPrice"},
                     "total_spent": {
                         "$sum": {
                             "$multiply": ["$Quantity", "$UnitPrice"]
@@ -38,6 +39,7 @@ class PurchaseRetriever:
                     "_id": 0,
                     "title": "$_id",
                     "stock_code": 1,
+                    "unit_price": 1,
                     "most_recent_order": 1,
                     "most_recent_tracking_number": 1,
                     "total_spent": {"$round": ["$total_spent", 2]},
@@ -159,7 +161,7 @@ class PurchaseRetriever:
             lines.append(f"Most Recent Order Tracking Number: {item['most_recent_tracking_number']}")
             lines.append(f"Total Spent: ${item['total_spent']}")
             lines.append(f"Total Quantity Purchased: {item['total_quantity_purchased']}")
-            
+            lines.append(f"Unit Price: ${item['unit_price']:.2f}")
             # Show tracking numbers (optionally limit if too many)
             tracking_nums = item['tracking_numbers']
             if len(tracking_nums) <= 10:
@@ -174,7 +176,7 @@ class PurchaseRetriever:
     def _format_order_based(self, lst: List[Dict[str, Any]]) -> str:
 
         static_cols = ["TrackingNumber", "DeliveryDate", "OrderDate", "Address"]
-        dynamic_cols = ["StockCode", "Title", "Quantity"]
+        dynamic_cols = ["StockCode", "Title", "Quantity", "UnitPrice", "ItemTotalPrice"]
 
         # Aggregate items by StockCode
         aggregated = defaultdict(lambda: {"Title": "", "Quantity": 0})
@@ -182,31 +184,39 @@ class PurchaseRetriever:
             code = row["StockCode"]
             aggregated[code]["Title"] = row["Title"]
             aggregated[code]["Quantity"] += row["Quantity"]
+            aggregated[code]["UnitPrice"] = row["UnitPrice"]
 
-        # Compute total spending
+        # Compute total cost / refund
         total_amount = sum(
             row["UnitPrice"] * row["Quantity"]
             for row in lst
         )
+        is_return = total_amount < 0
 
         lines = []
         lines.append("Order Details:")
+
+        order_type = "Return" if is_return else "Purchase"
+        lines.append(f"Type: This is a {order_type}")
 
         if not lst:
             return "\n".join(lines)
 
         for col in static_cols:
-            lines.append(f"{col}: {lst[0][col]}")
+            value = lst[0][col]
+            if col == "DeliveryDate" and value is None:
+                value = "Order has not been delivered yet."
+
+            lines.append(f"{col}: {value}")
 
         # Display total instead of unit price
-        lines.append(
-            f"Total Cost: -${abs(total_amount):,.2f}" if total_amount < 0
-            else f"Total Cost: ${total_amount:,.2f}"
-        )
+        cost_label = "Total Refunded" if is_return else "Total Cost"
+        lines.append(f"{cost_label}: ${abs(total_amount):,.2f}")
 
         lines.append(f"ITEMS: {dynamic_cols}")
         for code, data in aggregated.items():
-            lines.append(f" - [{code}, {data['Title']}, {data['Quantity']}]")
+            item_total = data["UnitPrice"] * data["Quantity"]
+            lines.append(f" - [{code}, {data['Title']}, {abs(data['Quantity'])}, ${data['UnitPrice']:.2f}, ${item_total:.2f}]")
 
         lines.append("")
         return "\n".join(lines)
