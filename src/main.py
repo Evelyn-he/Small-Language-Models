@@ -80,6 +80,14 @@ def user_input_filter(user_input):
     for label, pattern in patterns.items():
         filtered_user_input = re.sub(pattern, f"[REDACTED {label.upper()}]", filtered_user_input)
 
+    # Lines starting with "Address:" — redact remainder of line (multiline text)
+    filtered_user_input = re.sub(
+        r"^Address:.*",
+        "Address: [REDACTED ADDRESS]",
+        filtered_user_input,
+        flags=re.MULTILINE,
+    )
+
     return filtered_user_input
 
 def entity_recognition_filter(user_input):
@@ -132,8 +140,6 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
     
     if (args.verbose):
         print(f"\t[DEBUG] User context:\n{query_context}")
-    
-    filtered_query_context = user_input_filter(query_context)
 
     prompt_template = (
         "You are a customer support agent.\n"
@@ -166,6 +172,7 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
 
     print("AI: ", end="", flush=True)
 
+    #slm_confident = False #default to true (confident)
     if slm_confident: #use SLM if confident it can answer
         reply, confidence = stream_response(args, conversation)
 
@@ -177,6 +184,7 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
 
         filtered_input = user_input_filter(user_input)
         filtered_input = entity_recognition_filter(filtered_input)
+        filtered_query_context = user_input_filter(query_context)
 
         if (args.verbose):
             end_filter_time = time.time()
@@ -195,6 +203,7 @@ def process_message(user_id, user_input, args, conversation, filtered_convo, ret
     
         if (args.verbose):
             print(f"\t[DEBUG] Filtered input: {filtered_input}")
+            print(f"\t[DEBUG] Filtered query context: {filtered_query_context}")
 
         start_time = time.time()
         reply = llm_response(args, filtered_convo)
