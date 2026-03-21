@@ -5,7 +5,8 @@ from src.models.slm import OLLAMA_API, MODEL_FALLBACK
 
 
 def self_prompted_confidence(args, user_query: str) -> bool:
-    print(f"\t[DEBUG] In Fallback checker")
+    if (args.verbose):
+        print(f"\t[DEBUG] In Self-prompted confidence checker")
 
     confidence_prompt = f"""
     You are estimating the probability that a SMALL e-commerce
