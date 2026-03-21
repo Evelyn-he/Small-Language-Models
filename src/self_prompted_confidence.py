@@ -13,31 +13,34 @@ def self_prompted_confidence(args, user_query: str) -> bool:
 
     The model is specifically trained for e-commerce support.
 
+    Rules:
+    - ONLY Output a decimal number
+    - Format: 0.xx
+    - Exactly two decimal places
+    - Do NOT include any other text or comments in your response
+    - START with a number
+    - Do NOT explain your reasoning
+
+    Answer with only the number.
+    If you output anything other than a number in the correct format, the answer is considered incorrect.
+    
+
     It is good at:
     - answering typical e-commerce customer service questions
     - retrieving information from store systems such as orders, shipments, products, inventory, accounts, FAQs, and policies
     - looking up customer-specific order history (e.g., whether an item was ordered, quantity purchased, order timing, or price at time of purchase)
     - checking delivery or shipment details (e.g., delivery status, delivery date, delivery location, or shipping destination)
-    - checking product availability or stock levels
+    - checking product availability, stock levels (how many available), product price
     - retrieving store policies or FAQ information
     - retrieving and combining a few fields from structured store records (e.g., item, date, location, status, price, quantity)
     - answering questions that require simple lookups across orders, deliveries, inventory, or policies
     - applying basic business rules
 
-    Most normal customer-service questions involving orders, shipping,
-    deliveries (status, time, or location), products, inventory (availability or quantity),
-    order history (quantity, timing, or price), accounts, or store policies
-    should receive HIGH probability.
-
-    If the answer can be found by retrieving information from store data
-    (orders, shipments, inventory, or policies), the probability should
-    usually be above 0.85.
-
     Limitations:
     - cannot perform deep reasoning or complex multi-step analysis
-    - cannot answer philosophical, speculative, or opinion-based questions
-    - may struggle with highly ambiguous or unrelated requests
-    - may struggle with opinionated questions such as recommendations or inferences
+    - cannot answer philosophical, speculative/predictive "what should I do?", comparisons, judgements, best/worse, recommendations, or opinion-based questions
+    - cannot make inferences or predictions about data
+    - struggle with vague, ambiguous or unrelated requests
 
     Note:
     Questions that involve checking order details (such as what, when, where,
@@ -80,22 +83,15 @@ def self_prompted_confidence(args, user_query: str) -> bool:
     Question: Do you ship internationally?
     Answer: 0.91
 
-    Question: Why do humans value material possessions?
-    Answer: 0.14
-
     Question: If shipping delays increase by 15% next year, how will that affect market demand?
     Answer: 0.18
 
-    Rules:
-    - Output ONLY a decimal number
-    - Format: 0.xx
-    - Exactly two decimal places
-    - Do not output 0.00, 0.25, 0.50, 0.75, or 1.00
+    Question: Should I get apples or bananas?
+    Answer: 0.10
 
     Question:
     {user_query}
 
-    Answer with only the number.
     AI:
     """
 
@@ -106,7 +102,7 @@ def self_prompted_confidence(args, user_query: str) -> bool:
         "options": {
             "num_predict": 20,
             "stop": ["\n\n", "You:"],
-            "temperature": 0.6,
+            "temperature": 0.4,
         },
     }
 
