@@ -6,8 +6,9 @@ import json
 # from confidence import evaluate_confidence
 from src.confidence_rouge import evaluate_rouge_confidence
 
-OLLAMA_API = "http://localhost:11434/api/generate" # ollama API endpoint
-MODEL = "phi3:3.8b"
+OLLAMA_API = "http://localhost:11434/api/generate"  # ollama API endpoint
+MODEL = "phi3-new:latest"
+MODEL_FALLBACK = "phi3:3.8b"
 CHAR_DELAY = 0  # delay between characters for printing out AI response
 
 def warmup_model():
@@ -40,6 +41,9 @@ def stream_response(args, messages):
             "top_k": 1
         }
     }
+
+    if args.verbose:
+        print(f"\t[DEBUG] payload model: {payload['model']}")
 
     response_text = ""
     start_time = time.time()
@@ -74,28 +78,29 @@ def stream_response(args, messages):
 
     end_time = time.time()
 
-    if(args.verbose):
+    if args.verbose:
         print("\t[DEBUG] SLM response time: ", end_time - start_time)
 
-
-    start_time = time.time()
+    #Rouge Confidence Evaluation Stage
+    # start_time = time.time()
     
-    # confidence = evaluate_confidence(prompt, response_text)
+    # # confidence = evaluate_confidence(prompt, response_text)
 
-    confidence = evaluate_rouge_confidence(
-        model=MODEL,
-        prompt=prompt,
-        original_response=response_text,
-        num_samples=2,  # generate 2 additional responses for comparison
-        rouge_threshold=0.25,  # confidence threshold (adjustable)
-        verbose=args.verbose
-    )
+    # confidence = evaluate_rouge_confidence(
+    #     model=MODEL,
+    #     prompt=prompt,
+    #     original_response=response_text,
+    #     num_samples=2,  # generate 2 additional responses for comparison
+    #     rouge_threshold=0.25,  # confidence threshold (adjustable)
+    #     verbose=args.verbose
+    # )
     
-    if not confidence:
-        print("*** SLM is not confident ***")
-    end_time = time.time()
+    # if not confidence:
+    #     print("*** SLM is not confident ***")
+    # end_time = time.time()
 
-    if(args.verbose):
-        print("\t[DEBUG] Confidence evaluation time: ", end_time - start_time)
+    # if args.verbose:
+    #     print("\t[DEBUG] Rouge Confidence evaluation time: ", end_time - start_time)
 
-    return response_text, confidence
+    #return response_text, confidence #only if using rouge confidence
+    return response_text, True
